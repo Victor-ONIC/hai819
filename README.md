@@ -13,3 +13,9 @@ sudo apt install \
     libxinerama-dev \
     libxcursor-dev
 ```
+## Build and run
+```
+mkdir build && cd build
+cmake ..
+make && ./mc
+```
