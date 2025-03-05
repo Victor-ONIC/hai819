@@ -2,7 +2,8 @@
 
 Shader::Shader(const std::string& cs_path)
 {
-    const char* cs_code = this->read_shader(cs_path);
+    std::string tmp = this->read_shader(cs_path);
+    const char* cs_code = tmp.c_str();
 
     GLuint cs_id = glCreateShader(GL_COMPUTE_SHADER);
     glShaderSource(cs_id, 1, &cs_code, NULL);
@@ -17,18 +18,21 @@ Shader::Shader(const std::string& cs_path)
 
 Shader::Shader(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path)
 {
+    std::string tmp;
     const char *vs_code, *fs_code, *gs_code;
     GLuint vs_id, fs_id, gs_id;
 
     m_ID = glCreateProgram();
 
-    vs_code = this->read_shader(vs_path);
+    tmp = this->read_shader(vs_path);
+    vs_code = tmp.c_str();
     vs_id = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vs_id, 1, &vs_code, NULL);
     this->compile_shader(vs_id);
     glAttachShader(m_ID, vs_id);
     
-    fs_code = this->read_shader(fs_path);
+    tmp = this->read_shader(fs_path);
+    fs_code = tmp.c_str();
     fs_id = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fs_id, 1, &fs_code, NULL);
     this->compile_shader(fs_id);
@@ -36,7 +40,8 @@ Shader::Shader(const std::string& vs_path, const std::string& fs_path, const std
 
     if (!gs_path.empty())
     {
-        gs_code = this->read_shader(gs_path);
+        tmp = this->read_shader(gs_path);
+        gs_code = tmp.c_str();
         gs_id = glCreateShader(GL_GEOMETRY_SHADER);
         glShaderSource(gs_id, 1, &gs_code, NULL);
         this->compile_shader(gs_id);
@@ -49,8 +54,9 @@ Shader::Shader(const std::string& vs_path, const std::string& fs_path, const std
     glDeleteShader(fs_id);
 }
 
-const char* Shader::read_shader(const std::string& path)
+std::string Shader::read_shader(const std::string& path)
 {
+    std::string code_string;
     std::ifstream shader_file(path);
     if (!shader_file)
         std::cout << "ERREUR::SHADER - Fichier " << path << '\n';
@@ -60,7 +66,7 @@ const char* Shader::read_shader(const std::string& path)
     ss << shader_file.rdbuf();
     shader_file.close();
 
-    return ss.str().c_str();
+    return ss.str();
 }
 
 void Shader::compile_shader(GLuint shader_id)
