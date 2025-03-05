@@ -8,6 +8,7 @@
 
 #include "Shader.h"
 #include "Texture.h"
+#include "Camera.h"
 
 #define WINDOW_WIDTH 1200
 #define WINDOW_HEIGHT 675
@@ -162,7 +163,8 @@ int main()
 
     // CAMÉRA -> boucle de rendu.
 
-    while (!glfwWindowShouldClose(window))
+    while (glfwGetKey(window, GLFW_KEY_L) != GLFW_PRESS &&
+           glfwWindowShouldClose(window) == 0)
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -170,8 +172,8 @@ int main()
         float radius = 6;
         float X = sin(glfwGetTime()) * radius;
         float Z = cos(glfwGetTime()) * radius;
-        glm::mat4 view = glm::lookAt(glm::vec3(X, 0, Z), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-        programme_shader.set_uniform("view", view);
+        Camera cam = Camera(glm::vec3(X,0,Z), glm::vec3(0,0,0), glm::vec3(0,1,0));
+        programme_shader.set_uniform("view", cam.m_view);
 
         for (int i = 0; i < 10; i++)
         {
