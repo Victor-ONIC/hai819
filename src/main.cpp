@@ -24,7 +24,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "mc", NULL, NULL);
-    if (!window) 
+    if (!window)
     {
         glfwTerminate();
         return -100;
@@ -32,13 +32,14 @@ int main()
     glfwMakeContextCurrent(window);
 
     // GLEW
-    if (glewInit() != GLEW_OK) 
+    if (glewInit() != GLEW_OK)
     {
         glfwTerminate();
         return -200;
     }
 
     // DONNÉES
+    // clang-format off
     float cube[] =
     {
         // 6 faces, chaque face 2 triangles, chaque triangle 3 sommets, chaque sommets 5 floats.
@@ -100,6 +101,7 @@ int main()
         glm::vec3( 1.5f,  0.2f, -1.5f),
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
+    // clang-format on
 
     // OpenGL API
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -123,21 +125,20 @@ int main()
     // Autrement dit, quel est le format des données contenues dans le buffer ?
     // Attribut 0: position:
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     // Attribut 1: coordonnées de texture:
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(3*sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
     // Noter que les actions de 2., 3., et 4. sont stockées dans le VAO.
     // C'est pour ça qu'on bind le VAO en 1., et à chaque fois qu'on
     // va bind ce VAO, c'est comme si on faisait 2., 3., et 4. !
 
-
     // PROGRAMME SHADER
     // Utiliser ma classe Shader pour créer et utiliser un programme shader.
-    Shader programme_shader("../res/shaders/vertex_shader.vert", "../res/shaders/fragment_shader.frag");
+    Shader programme_shader("../res/shaders/vertex_shader.vert",
+                            "../res/shaders/fragment_shader.frag");
     programme_shader.use();
-
 
     // TEXTURES
     Texture container("../res/textures/container.jpg");
@@ -149,7 +150,6 @@ int main()
     programme_shader.set_uniform("texture1", 0);
     programme_shader.set_uniform("texture2", 1);
 
-
     // MATRICES
     // Matrice de modèle -> boucle de rendu.
 
@@ -157,9 +157,8 @@ int main()
 
     // Matrice de projection (perspective).
     glm::mat4 projection(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), 1000.0f/750.0f, 1.0f, 100.0f);
+    projection = glm::perspective(glm::radians(45.0f), 1000.0f / 750.0f, 1.0f, 100.0f);
     programme_shader.set_uniform("projection", projection);
-
 
     // CAMÉRA -> boucle de rendu.
 
@@ -171,7 +170,7 @@ int main()
         float radius = 6;
         float X = sin(glfwGetTime()) * radius;
         float Z = cos(glfwGetTime()) * radius;
-        glm::mat4 view = glm::lookAt(glm::vec3(X,0,Z), glm::vec3(0,0,0), glm::vec3(0,1,0));
+        glm::mat4 view = glm::lookAt(glm::vec3(X, 0, Z), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
         programme_shader.set_uniform("view", view);
 
         for (int i = 0; i < 10; i++)
@@ -191,5 +190,4 @@ int main()
 
     glfwTerminate();
     return 0;
-
 }
