@@ -7,7 +7,6 @@ out vec4 out_couleur_fragment;
 in vec2 tex_coord;
 
 uniform sampler2D permTexture;
-//uniform sampler2D permTexture;
 //uniform sampler2D gradTexture;
 
 float fade(float t) {
@@ -60,5 +59,7 @@ void main()
         mf = mf * 2.0;
     }
     color = vec4(n, n, n, 1.0);
+    //color = texture(permTexture, tex_coord);
+    //color = vec4(1.0, 0.0, 0.0, 1.0);
     out_couleur_fragment = color;
 }
