@@ -13,6 +13,82 @@
 
 #define WINDOW_WIDTH 1200
 #define WINDOW_HEIGHT 675
+static GLuint _cube_buffer[2] = {0};
+static GLuint _cube_vao = 0;
+
+void draw_cube(Shader prog, glm::mat4 mvp) {
+  // Cube de simu
+  //glUseProgram(prog.m_ID);
+  prog.use();
+  glLineWidth(1.0f);
+
+  prog.set_uniform("MVP", mvp);
+  glBindBuffer(GL_ARRAY_BUFFER, _cube_buffer[0]);
+  glBindVertexArray(_cube_vao);
+  glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT,
+                 (const GLvoid *)(0 * sizeof(GLuint)));
+  glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT,
+                 (const GLvoid *)(4 * sizeof(GLuint)));
+  glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT,
+                 (const GLvoid *)(8 * sizeof(GLuint)));
+  glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT,
+                 (const GLvoid *)(12 * sizeof(GLuint)));
+  glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT,
+                 (const GLvoid *)(16 * sizeof(GLuint)));
+  glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT,
+                 (const GLvoid *)(20 * sizeof(GLuint)));
+  glBindVertexArray(0);
+  glUseProgram(0);
+}
+
+void init(){
+  //srand(time(NULL));
+
+  GLfloat cube[32] = // 8 sommets * 4 coord
+      {/* sommet  0 */ -10, 10,  10,  0,
+       /* sommet  1 */ 10,  10,  10,  0,
+       /* sommet  2 */ 10,  10,  -10, 0,
+       /* sommet  3 */ -10, 10,  -10, 0,
+       /* sommet  4 */ -10, -10, 10,  0,
+       /* sommet  5 */ 10,  -10, 10,  0,
+       /* sommet  6 */ 10,  -10, -10, 0,
+       /* sommet  7 */ -10, -10, -10, 0};
+  GLuint icube[24] = {/* face haut du cube unitaire */
+                      0, 1, 2, 3,
+                      /* face bas du cube unitaire  */
+                      4, 7, 6, 5,
+                      /* face avant du cube unitaire  */
+                      0, 4, 5, 1,
+                      /* face arriere du cube unitaire  */
+                      7, 3, 2, 6,
+                      /* face gauche du cube unitaire  */
+                      4, 0, 3, 7,
+                      /* face droite du cube unitaire  */
+                      5, 6, 2, 1};
+
+
+  // CUBE
+  glGenVertexArrays(1, &_cube_vao);
+  glBindVertexArray(_cube_vao);
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
+  glGenBuffers(2, _cube_buffer);
+  /* Lier le VBO-ARRAY_BUFFER à l'identifiant du premier VBO généré */
+  glBindBuffer(GL_ARRAY_BUFFER, _cube_buffer[0]);
+  /* Transfert des données VBO-ARRAY_BUFFER */
+  glBufferData(GL_ARRAY_BUFFER, sizeof cube, cube, GL_STATIC_DRAW);
+  /* Paramétrage 2 premiers indices d'attribut de sommet */
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof *cube,
+                        (const void *)0);
+  /* Lier le VBO-ELEMENT_ARRAY_BUFFER à l'identifiant du second VBO généré */
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cube_buffer[1]);
+  /* Transfert des données d'indices VBO-ELEMENT_ARRAY_BUFFER */
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof icube, icube, GL_STATIC_DRAW);
+  /* dé-lier le VAO puis les VAO */
+  glBindVertexArray(0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
 
 int main()
 {
@@ -136,6 +212,11 @@ int main()
     // va bind ce VAO, c'est comme si on faisait 2., 3., et 4. !
 
     // PROGRAMME SHADER
+    // Compute Shader
+    Shader programme_cs("../res/shaders/map.comp");
+    // Cube repère
+    Shader programme_cube_repere("../res/shaders/cube_repere.vert",
+                            "../res/shaders/cube_repere.frag");
     // Utiliser ma classe Shader pour créer et utiliser un programme shader.
     Shader programme_shader("../res/shaders/vertex_shader.vert",
                             "../res/shaders/fragment_shader.frag");
@@ -154,6 +235,7 @@ int main()
     tex.bind(0);
     programme_shader.set_uniform("permTexture", 0);
 
+    init();
     // MATRICES
     // Matrice de modèle -> boucle de rendu.
 
@@ -179,6 +261,9 @@ int main()
         Camera cam = Camera(glm::vec3(X,0,Z), glm::vec3(0,0,0), glm::vec3(0,1,0));
         programme_shader.set_uniform("view", cam.m_view);
 
+        glm::mat4 cube_model = glm::mat4(1.0f);
+        glm::mat4 mvp = projection * cam.m_view * cube_model; // Remember, matrix multiplication is the other way around
+        draw_cube(programme_cube_repere, mvp);
         for (int i = 0; i < 10; i++)
         {
             glm::mat4 model(1.0f);
