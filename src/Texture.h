@@ -12,6 +12,7 @@ class Texture
     unsigned int ID;
 
 public:
+    Texture(uint8_t * buffer, size_t width, size_t height);
     Texture(const std::string& path);
     ~Texture();
 

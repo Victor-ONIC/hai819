@@ -4,6 +4,21 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+
+
+Texture::Texture(uint8_t * buffer, size_t width, size_t height)
+{
+    // 1. Créer une texture.
+    glGenTextures(1, &ID);
+    // 2. Attacher la texture.
+    glBindTexture(GL_TEXTURE_2D, ID);
+    //Buffer to Texture
+    //glActiveTexture(GL_TEXTURE3);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer );
+}
+
 Texture::Texture(const std::string& path)
 {
     // 1. Créer une texture.
@@ -25,19 +40,19 @@ Texture::Texture(const std::string& path)
     unsigned char* data = stbi_load(path.c_str(), &length, &height, &nb_channels, 4);
 
     if (data)
-    {
-        // Injecter les données de cette texture.
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, length, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        {
+            // Injecter les données de cette texture.
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, length, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-        // Dire à OpenGL d'automatiquement générer les mipmaps pour cette texture.
-        glGenerateMipmap(ID);
+            // Dire à OpenGL d'automatiquement générer les mipmaps pour cette texture.
+            glGenerateMipmap(ID);
 
-        stbi_image_free(data);
-    }
+            stbi_image_free(data);
+        }
     else
-    {
-        std::cout << "ERREUR::TEXTURE - " << path << "\n";
-    }
+        {
+            std::cout << "ERREUR::TEXTURE - " << path << "\n";
+        }
 }
 
 Texture::~Texture()

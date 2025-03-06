@@ -13,6 +13,49 @@
 #define WINDOW_WIDTH 1200
 #define WINDOW_HEIGHT 675
 
+static int grad3[16][3] = { {0, 1,  1}, { 0,  1, -1}, { 0, -1, 1}, { 0, -1, -1},
+                            {1, 0,  1}, { 1,  0, -1}, {-1,  0, 1}, {-1,  0, -1},
+                            {1, 1,  0}, { 1, -1,  0}, {-1,  1, 0}, {-1, -1,  0},
+                            {1, 0, -1}, {-1, 0,  -1}, { 0, -1, 1}, { 0,  1,  1} };
+
+static int grad4[32][4] = { { 0,  1, 1, 1}, { 0,  1,  1, -1}, { 0,  1, -1, 1}, { 0,  1, -1, -1},
+                            { 0, -1, 1, 1}, { 0, -1,  1, -1}, { 0, -1, -1, 1}, { 0, -1, -1, -1},
+                            { 1,  0, 1, 1}, { 1,  0,  1, -1}, { 1,  0, -1, 1}, { 1,  0, -1, -1},
+                            {-1,  0, 1, 1}, {-1,  0,  1, -1}, {-1,  0, -1, 1}, {-1,  0, -1, -1},
+                            { 1,  1, 0, 1}, { 1,  1,  0, -1}, { 1, -1,  0, 1}, { 1, -1,  0, -1},
+                            {-1,  1, 0, 1}, {-1,  1,  0, -1}, {-1, -1,  0, 1}, {-1, -1,  0, -1},
+                            { 1,  1, 1, 0}, { 1,  1, -1,  0}, { 1, -1,  1, 0}, { 1, -1, -1,  0},
+                            {-1,  1, 1, 0}, {-1,  1, -1,  0}, {-1, -1,  1, 0}, {-1, -1, -1,  0} };
+
+void test_tex_noise(){
+    int i, j, k, i8;
+    uint8_t * buffer, v;
+    uint8_t perm[256];
+
+    for(int i=0 ; i<256 ; ++i){
+        perm[i] = rand() % 256;
+    }
+
+    buffer = (uint8_t *) malloc( (1 << 18)/* 4 * 256 * 256 */ * sizeof *buffer); assert(buffer);
+    for(i = 0; i < 256; i++) {
+        i8 = i << 8;
+        for(j = 0; j < 256; j++) {
+            k = (i8 + j) << 2;
+            v = perm[(j + perm[i]) & 0xFF];
+            buffer[k + 0] = (grad4[v & 0x1F][0] << 6) + 64;
+            buffer[k + 1] = (grad4[v & 0x1F][1] << 6) + 64;
+            buffer[k + 2] = (grad4[v & 0x1F][2] << 6) + 64;
+            buffer[k + 3] = (grad4[v & 0x1F][3] << 6) + 64;
+        }
+    }
+    Texture tex1 = Texture(buffer, 256, 256);
+    Texture tex2 = Texture(buffer, 256, 256);
+    // TEXTURES
+
+    tex1.bind(0);
+    tex2.bind(1);
+}
+
 int main()
 {
 
@@ -40,7 +83,6 @@ int main()
     }
 
     // DONNÉES
-    // clang-format off
     float cube[] =
     {
         // 6 faces, chaque face 2 triangles, chaque triangle 3 sommets, chaque sommets 5 floats.
@@ -142,19 +184,50 @@ int main()
     programme_shader.use();
 
     // TEXTURES
-    Texture container("../res/textures/container.jpg");
-    Texture face("../res/textures/awesomeface.png");
+    //Texture container("../res/textures/container.jpg");
+    //Texture face("../res/textures/awesomeface.png");
 
-    container.bind(0);
-    face.bind(1);
+    //container.bind(0);
+    //face.bind(1);
 
+    test_tex_noise();
+    /////////////////////////////////////////////////////////////////////////////////////
+
+    int i, j, k, i8;
+    uint8_t * buffer, v;
+    uint8_t perm[256];
+
+    for(int i=0 ; i<256 ; ++i){
+        perm[i] = rand() % 256;
+    }
+
+    buffer = (uint8_t *) malloc( (1 << 18)/* 4 * 256 * 256 */ * sizeof *buffer); assert(buffer);
+    for(i = 0; i < 256; i++) {
+        i8 = i << 8;
+        for(j = 0; j < 256; j++) {
+            k = (i8 + j) << 2;
+            v = perm[(j + perm[i]) & 0xFF];
+            buffer[k + 0] = (grad4[v & 0x1F][0] << 6) + 64;
+            buffer[k + 1] = (grad4[v & 0x1F][1] << 6) + 64;
+            buffer[k + 2] = (grad4[v & 0x1F][2] << 6) + 64;
+            buffer[k + 3] = (grad4[v & 0x1F][3] << 6) + 64;
+        }
+    }
+    Texture tex1 = Texture(buffer, 256, 256);
+    Texture tex2 = Texture(buffer, 256, 256);
+    // TEXTURES
+
+    tex1.bind(0);
+    tex2.bind(1);
+    /////////////////////////////////////////////////////////////////////////////////////////////
     programme_shader.set_uniform("texture1", 0);
-    programme_shader.set_uniform("texture2", 1);
+    programme_shader.set_uniform("texture2", 0);
 
     // MATRICES
     // Matrice de modèle -> boucle de rendu.
 
     // Matrice de vue -> CAMÉRA.
+    Camera cam = Camera(glm::vec3(0,0,0), glm::vec3(0,0,0), glm::vec3(0,1,0));
 
     // Matrice de projection (perspective).
     glm::mat4 projection(1.0f);
