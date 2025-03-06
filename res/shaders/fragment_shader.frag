@@ -44,7 +44,9 @@ float noise(vec2 P)
   float n_xy = mix(n_x.x, n_x.y, fade(Pf.y));
 
   // We're done, return the final noise value.
-  return n_xy;
+  //return n_xy;
+  n_xy = mix(n_x.x, n_x.y, fade(Pf.y));
+  return pow(abs(n_xy), 0.75); // Réduit les zones plates
 }
 
 void main()
@@ -58,6 +60,7 @@ void main()
         A = A / 2.0;
         mf = mf * 2.0;
     }
+    //n = 1.0 - n;// Pour avoir des courbes concaves plutôt que convexes
     color = vec4(n, n, n, 1.0);
     //color = texture(permTexture, tex_coord);
     //color = vec4(1.0, 0.0, 0.0, 1.0);
