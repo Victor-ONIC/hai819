@@ -19,7 +19,10 @@ public:
         return instance;
     }
 
-    void loadShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath);
+        void loadShader(const std::string& name,
+                        const std::string& vertexPath,
+                        const std::string& fragmentPath,
+                        const std::string& geomPath = "");
     void loadShader(const std::string& name, const std::string& computePath);
     std::shared_ptr<Shader> getShader(const std::string& name);
 

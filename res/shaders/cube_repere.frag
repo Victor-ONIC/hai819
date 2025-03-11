@@ -1,4 +1,4 @@
-#version 450
+#version 460
 in  vec4 vsoColor;
 out vec4 fragColor;
 

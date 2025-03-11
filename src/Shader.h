@@ -28,6 +28,7 @@ public:
     void set_uniform(const std::string& name, float f);                                  // 1 float
     void set_uniform(const std::string& name, float f1, float f2, float f3);             // 3 floats
     void set_uniform(const std::string& name, float f1, float f2, float f3, float f4);   // 4 floats
+    void set_uniform(const std::string& name, const glm::vec4& vec);                     // glm::vec4
     void set_uniform(const std::string& name, const glm::mat4& matrix);                  // 1 matrice 4x4
     GLuint getID() const { return m_ID; }
 

@@ -1,7 +1,7 @@
 #include "ShaderManager.h"
 
-void ShaderManager::loadShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath) {
-    _shaders[name] = std::make_shared<Shader>(vertexPath, fragmentPath);
+void ShaderManager::loadShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath, const std::string& geomPath) {
+    _shaders[name] = std::make_shared<Shader>(vertexPath, fragmentPath, geomPath);
 }
 
 void ShaderManager::loadShader(const std::string& name, const std::string& computePath) {
