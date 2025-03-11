@@ -12,7 +12,7 @@ public:
     Cube(std::shared_ptr<Shader> shader);
     ~Cube();
 
-    void draw();
+    void draw(glm::mat4 proj, glm::mat4 view);
     void setPosition(const glm::vec3& position);
 
 private:

@@ -26,3 +26,11 @@ void Camera::look_at_update(glm::vec3 look_at){
 void Camera::head_update(glm::vec3 head){
      m_head = head;
   }
+
+glm::mat4 Camera::get_view(){
+  return m_view;
+}
+
+Camera::~Camera()
+{
+}
