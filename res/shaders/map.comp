@@ -136,7 +136,7 @@ void main()
     int bool_pow2D = 0;
     int bool_pow3D = 1;
     float ground_height = 0.75;
-    float max_empty = 1.0 - abs(0.5 - ind3D.y) + 0.45;
+    float max_empty = 1.0 - abs(0.5 - ind3D.y) + 0.85;
 
     for(int i = 0; i < 5; ++i) {
         n2D += A * noise(zoom2D * mf * indxz, coef_pow2D, bool_pow2D);
@@ -147,5 +147,5 @@ void main()
     //n = 1.0 - n;
     data[gid] = 0;
     if((n2D / 4.0) + ground_height > ind3D.y) data[gid] = 1;
-    if(30000.0 * n3D < (max_empty)) data[gid] = 0;
+    if(30000.0 * n3D < (max_empty * 0.1)) data[gid] = 0;
 }
