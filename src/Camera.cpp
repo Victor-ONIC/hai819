@@ -5,14 +5,13 @@ Camera::Camera(glm::vec3 pos, glm::vec3 look_at, glm::vec3 head){
    m_look_at = look_at;
    m_head = head;
    m_view = glm::lookAt(m_pos, m_look_at, m_head);
-
-
 }
 
 void Camera::update(glm::vec3 pos, glm::vec3 look_at, glm::vec3 head){
      m_pos = pos;
      m_look_at = look_at;
      m_head = head;
+     m_view = glm::lookAt(pos, look_at, head);
 }
 
 void Camera::pos_update(glm::vec3 pos){

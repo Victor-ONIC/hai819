@@ -9,6 +9,7 @@
 #include <GL/glew.h> // first
 #include <GLFW/glfw3.h>
 #include <chrono>
+#include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
@@ -31,7 +32,6 @@ static inline void init() {
 
 static inline void draw(Camera cam) {
   glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)1920 / (float)1080, 0.1f, 9000.0f);
-
   glm::mat4 view = glm::lookAt(
       glm::vec3(30, 20, 20),
       glm::vec3(0, 0, 0),
@@ -46,13 +46,12 @@ static inline void draw(Camera cam) {
   c.draw(proj, cam.get_view());
 }
 
-static inline void camera_settings(Camera cam, float current_time) {
+static inline void camera_settings(Camera& cam, float current_time) {
   static GLfloat angle = 6.0;
-  GLfloat dist = 10.0;
-  cam.update(glm::vec3(dist * sin(angle), dist, dist * cos(angle)),
-             glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-  cam.update(glm::vec3(100.0, 100.0, 100.0), glm::vec3(0.0, 0.0, 0.0), glm::);
-  angle += 0.008;
+  GLfloat dist = 40.0;
+  cam.update(glm::vec3(dist * sin(current_time), 40.0, dist * cos(current_time)),
+             glm::vec3(0.0, 0.0, 0.0),
+             glm::vec3(0.0, 1.0, 0.0));
 }
 
 int main() {
@@ -84,11 +83,8 @@ int main() {
   Noise noise = Noise(256);
   Texture tex = Texture(noise.m_buffer, 256, 256);
   tex.bind(0);
-
   init();
-  Camera cam =
-      Camera(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
+  Camera cam = Camera(glm::vec3(50, 20, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
   auto lastTime = std::chrono::high_resolution_clock::now();
   while (glfwGetKey(window, GLFW_KEY_L) != GLFW_PRESS &&
          glfwWindowShouldClose(window) == 0) {
