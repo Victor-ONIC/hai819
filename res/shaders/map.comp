@@ -129,7 +129,7 @@ void main()
     //float coef_pow = 1.50;
     //float coef_pow = 1.75;
     float coef_pow2D = 1.85;
-    float coef_pow3D = 4.85;
+    float coef_pow3D = 6.85;
     //float coef_pow = 2.00;
     //float coef_pow = 2.25;
     //float coef_pow = 2.75;
@@ -147,5 +147,5 @@ void main()
     //n = 1.0 - n;
     data[gid] = 0;
     if((n2D / 4.0) + ground_height > ind3D.y) data[gid] = 1;
-    if(2000.0 * n3D < (max_empty)) data[gid] = 0;
+    if(30000.0 * n3D < (max_empty)) data[gid] = 0;
 }
