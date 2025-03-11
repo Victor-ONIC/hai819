@@ -20,7 +20,7 @@
 #define WINDOW_HEIGHT 1080
 
 static const int _map_width = 128;
-static const int _map_height = 64;
+static const int _map_height = 128;
 static const int _map_depth = 128;
 static const size_t _nb_blocks = _map_width * _map_height * _map_depth;
 static GLuint _buffer[1] = {0};
@@ -148,11 +148,11 @@ static inline void draw(Camera cam) {
 
 static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
-  GLfloat dist = 150.0;
+  GLfloat dist = 350.0;
   GLfloat vit = 0.2;
   cam.update(
-      glm::vec3(1.5 * dist * sin(vit * current_time), dist * 0.5, dist * cos(vit * current_time)),
-      glm::vec3(0.5 * dist, 0.0, 0.5 * dist), glm::vec3(0.0, 1.0, 0.0));
+      glm::vec3(1.2 * dist * sin(vit * current_time), dist * 0.7, dist * cos(vit * current_time)),
+      glm::vec3(0.2 * dist, 0.3 * dist, 0.2 * dist), glm::vec3(0.0, 1.0, 0.0));
 }
 
 int main() {
