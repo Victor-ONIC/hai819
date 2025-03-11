@@ -29,6 +29,7 @@ public:
     void set_uniform(const std::string& name, float f1, float f2, float f3);             // 3 floats
     void set_uniform(const std::string& name, float f1, float f2, float f3, float f4);   // 4 floats
     void set_uniform(const std::string& name, const glm::mat4& matrix);                  // 1 matrice 4x4
+    GLuint getID() const { return m_ID; }
 
 private:
     std::string read_shader(const std::string& path);

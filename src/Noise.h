@@ -22,4 +22,4 @@ public:
 private:
 };
 
-#endif // NOISE_H_
+#endif
