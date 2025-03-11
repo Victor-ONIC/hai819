@@ -34,7 +34,7 @@ static inline void draw() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
-  std::shared_ptr<Shader> shader = ShaderManager::getInstance().getShader("cubeRepere");
+  std::shared_ptr<Shader> shader = shader_manager.getShader("cubeRepere");
   Cube c = Cube(shader);
   c.setPosition(glm::vec3(0, 0, 0));
   c.draw();
