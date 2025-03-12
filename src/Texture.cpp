@@ -6,6 +6,7 @@
 
 
 
+//TODO vérifications sur width et height
 Texture::Texture(uint8_t * buffer, size_t width, size_t height)
 {
     // 1. Créer une texture.

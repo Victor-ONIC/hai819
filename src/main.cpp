@@ -9,6 +9,7 @@
 #include <GL/glew.h> // first
 #include <GLFW/glfw3.h>
 #include <chrono>
+#include <functional>
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -19,9 +20,9 @@
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
 
-static const int _map_width = 128;
+static const int _map_width = 64;
 static const int _map_height = 128;
-static const int _map_depth = 128;
+static const int _map_depth = 64;
 static const size_t _nb_blocks = _map_width * _map_height * _map_depth;
 static GLuint _buffer[1] = {0};
 static std::vector<GLuint> _data(_nb_blocks, 0); // Initialise avec 0 par défaut
@@ -32,7 +33,6 @@ static inline void process_map() {
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
   std::shared_ptr<Shader> shader = shader_manager.getShader("mapCompute");
-  srand(time(NULL));
   Noise noise = Noise(256);
   Texture tex = Texture(noise.m_buffer, 256, 256);
   tex.bind(0);
@@ -43,7 +43,6 @@ static inline void process_map() {
   glGenBuffers(1, _buffer);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer[0]);
   glBufferData(GL_SHADER_STORAGE_BUFFER, _nb_blocks * sizeof(GLuint), data, GL_DYNAMIC_DRAW);
-  //glBufferData(GL_SHADER_STORAGE_BUFFER, _data.size() * sizeof(GLuint), _data.data(), GL_DYNAMIC_DRAW);
   //
   glGenVertexArrays(1, &_vao);
   glBindVertexArray(_vao);
@@ -55,8 +54,6 @@ static inline void process_map() {
                         (const void *)0);
   // Compute Shader
   shader->use();
-  //initNoiseTextures();
-  //useNoiseTextures(_cs_program, 0);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer[0]);
   shader->set_uniform("map_width", _map_width);
   shader->set_uniform("map_height", _map_height);
@@ -83,10 +80,7 @@ static inline void init() {
   process_map();
   glEnable(GL_DEPTH_TEST);
 }
-
 static inline void draw_map(Camera cam) {
-  glm::mat4 proj = glm::perspective(glm::radians(45.0f),
-                                    (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 9000.0f);
   glm::vec4 light_pos = glm::vec4(300.0, 500.0, 200.0, 1.0);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
@@ -101,7 +95,7 @@ static inline void draw_map(Camera cam) {
   shader->set_uniform("water_tex", 1);
 
 
-  glm::mat4 mvp = proj * cam.get_view();
+  glm::mat4 mvp = cam.get_proj() * cam.get_view();
   glBindVertexArray(_vao); // Associer VAO
   shader->set_uniform("map_width", _map_width);
   shader->set_uniform("map_height", _map_height);
@@ -111,14 +105,6 @@ static inline void draw_map(Camera cam) {
   shader->set_uniform("view", cam.get_view());
 
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer[0]);
-  /*
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, _grass_texture);
-  glUniform1i(glGetUniformLocation(_program, "grass_tex"), 0);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, _water_texture);
-  glUniform1i(glGetUniformLocation(_program, "water_tex"), 1);
-  */
   glDrawArrays(GL_POINTS, 0, _nb_blocks); // 1 vertex par bloc
 
   shader->stop();
@@ -126,24 +112,25 @@ static inline void draw_map(Camera cam) {
   glUseProgram(0);
 }
 
-static inline void draw(Camera cam) {
-  glm::mat4 proj = glm::perspective(glm::radians(45.0f),
-                                    (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 9000.0f);
-  glm::mat4 view = glm::lookAt(glm::vec3(30, 20, 20), glm::vec3(0, 0, 0),
-                               glm::vec3(0, 1, 0));
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+static inline void draw_cube_repere(Camera cam) {
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
   std::shared_ptr<Shader> shader = shader_manager.getShader("cubeRepere");
   Cube c = Cube(shader);
   c.setPosition(glm::vec3(0, 0, 0));
-  c.draw(proj, cam.get_view());
+  c.draw(cam.get_proj(), cam.get_view());
   draw_map(cam);
   glBindVertexArray(0);
   shader->stop();
+}
+
+static inline void draw(Camera cam){
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  draw_cube_repere(cam);
+  draw_map(cam);
 }
 
 static inline void camera_settings(Camera &cam, float current_time) {
@@ -184,8 +171,7 @@ int main() {
   glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
   init();
-  Camera cam =
-      Camera(glm::vec3(50, 20, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  Camera cam = Camera(glm::vec3(50, 20, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
   auto lastTime = std::chrono::high_resolution_clock::now();
   while (glfwGetKey(window, GLFW_KEY_L) != GLFW_PRESS &&
          glfwWindowShouldClose(window) == 0) {
@@ -193,7 +179,6 @@ int main() {
     float dt = std::chrono::duration<float>(currentTime - lastTime).count();
     camera_settings(cam, dt);
     draw(cam);
-    draw_map(cam);
     glfwSwapBuffers(window);
     glfwPollEvents();
   }

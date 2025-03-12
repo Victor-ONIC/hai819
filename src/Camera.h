@@ -24,6 +24,7 @@ public:
   void look_at_update(glm::vec3 look_at);
   void head_update(glm::vec3 head);
   glm::mat4 get_view();
+  glm::mat4 get_proj();
 
 private:
   GLuint m_ID;
@@ -31,6 +32,7 @@ private:
   glm::vec3 m_look_at;
   glm::vec3 m_head;
   glm::mat4 m_view;
+  glm::mat4 m_proj;
 };
 
 #endif // CAMERA_H_
