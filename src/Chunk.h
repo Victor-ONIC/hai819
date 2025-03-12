@@ -1,5 +1,5 @@
-#ifndef NOISE_H_
-#define NOISE_H_
+#ifndef CHUNK_H_
+#define CHUNK_H_
 
 #include <fstream>
 #include <iostream>
@@ -13,14 +13,12 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-class Noise {
+class Chunk {
 public:
-  size_t m_height;
-  std::vector<uint8_t> m_buffer;
-
-  Noise(size_t height);
+  Chunk(size_t x, size_t z);
+  ~Chunk();
 
 private:
 };
 
-#endif
+#endif // CHUNK_H_

@@ -26,7 +26,7 @@ Noise::Noise(size_t height)
     perm[i] = rand() % 256;
   }
 
-  m_buffer = (uint8_t*) malloc( (1 << 18)/* 4 * 256 * 256 */ * sizeof *m_buffer); assert(m_buffer);
+  m_buffer.resize(1 << 18);/* 4 * 256 * 256 */
 
   for(int i = 0; i < 256; i++) {
     int i8 = i << 8;

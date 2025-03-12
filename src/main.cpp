@@ -20,6 +20,7 @@
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
 
+//TODO stocker dans des objets
 static const int _map_width = 64;
 static const int _map_height = 128;
 static const int _map_depth = 64;
@@ -38,17 +39,17 @@ static inline void process_map() {
   tex.bind(0);
   shader->set_uniform("permTexture", 0);
 
-  GLuint *data = (GLuint *)malloc(_nb_blocks * sizeof(*data));
+  std::vector<GLuint> data(_nb_blocks);
   // Génération des buffers
   glGenBuffers(1, _buffer);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer[0]);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, _nb_blocks * sizeof(GLuint), data, GL_DYNAMIC_DRAW);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, _nb_blocks * sizeof(GLuint), data.data(), GL_DYNAMIC_DRAW);
   //
   glGenVertexArrays(1, &_vao);
   glBindVertexArray(_vao);
   glEnableVertexAttribArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, _buffer[0]);
-  glBufferData(GL_ARRAY_BUFFER, _nb_blocks * sizeof(GLuint), data,
+  glBufferData(GL_ARRAY_BUFFER, _nb_blocks * sizeof(GLuint), data.data(),
                GL_DYNAMIC_DRAW);
   glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint),
                         (const void *)0);

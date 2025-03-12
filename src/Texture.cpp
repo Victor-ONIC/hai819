@@ -1,4 +1,6 @@
 #include "Texture.h"
+#include <cstdint>
+#include <vector>
 
 // On inclut stb_image ici car on le considère comme un .cpp.
 #define STB_IMAGE_IMPLEMENTATION
@@ -7,7 +9,7 @@
 
 
 //TODO vérifications sur width et height
-Texture::Texture(uint8_t * buffer, size_t width, size_t height)
+Texture::Texture(std::vector<uint8_t> buffer, size_t width, size_t height)
 {
     // 1. Créer une texture.
     glGenTextures(1, &ID);
@@ -17,7 +19,7 @@ Texture::Texture(uint8_t * buffer, size_t width, size_t height)
     //glActiveTexture(GL_TEXTURE3);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
 }
 
 Texture::Texture(const std::string& path)
