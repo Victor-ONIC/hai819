@@ -8,12 +8,15 @@
 
 class World {
 public:
-  World(size_t width, size_t depth); // Taille en chunks
+  World(); // Taille en chunks
   ~World();
 
   // Accéder à un chunk (modification possible)
-  void getChunk(int x, int z);
+  bool hasChunk(int x, int z) const;
+  Chunk *findChunk(int x, int z);
+  Chunk &getChunk(int x, int z);
   void initChunk(int x, int z);
+  Chunk *tryGetChunk(int x, int z);
 
 private:
   size_t m_width, m_depth; // Dimensions en nombre de chunks

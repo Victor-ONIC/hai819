@@ -4,28 +4,28 @@
 #include "Constants.h"
 #include <unordered_map> // Pour utiliser std::unordered_map
 #include <utility>       // Pour std::pair
-namespace C =
-    Constants; //  Pour ne pas à avoir à écrire Constants:: à chaque fois
 
-World::World(size_t width, size_t depth) : m_width(width), m_depth(depth) {}
+World::World(){}
 
-/*
-void World::getChunk(int x, int z) {
-    // Créer une clé unique pour le chunk avec les coordonnées (x, z)
+bool World::hasChunk(int x, int z) const {
     ChunkKey key(x, z);
-
-    // Chercher si le chunk existe déjà
-    auto it = m_chunks.find(key);
-
-    // Si le chunk n'existe pas, le créer
-    if (it == m_chunks.end()) {
-        initChunk(x, z);
-    }
-
-    // Retourner la référence du chunk
-    return m_chunks[key];
+    return m_chunks.find(key) != m_chunks.end();
 }
-*/
+
+Chunk* World::findChunk(int x, int z) {
+    ChunkKey key(x, z);
+    auto it = m_chunks.find(key);
+    return (it != m_chunks.end()) ? &it->second : nullptr;
+}
+
+Chunk& World::getChunk(int x, int z) {
+    Chunk* chunk = findChunk(x, z);
+    if (!chunk) {
+        throw std::runtime_error("Chunk " + std::to_string(x) + ", " + std::to_string(z) + " doesn't exist!");
+    }
+    else{ std::cout << "getchunk finded" << std::endl;}
+    return *chunk;
+}
 
 void World::initChunk(int x, int z) {
     ChunkKey key(x, z);
@@ -35,10 +35,12 @@ void World::initChunk(int x, int z) {
     }
 }
 
+Chunk* World::tryGetChunk(int x, int z) {
+  ChunkKey key(x, z);
+  auto it = m_chunks.find(key);
+  return (it != m_chunks.end()) ? &it->second : nullptr;
+}
+
 World::~World(){
-   // Si les Chunks ont des ressources OpenGL à libérer
-   for (auto& pair : m_chunks) {
-       //TODO
-       //pair.second.cleanup();
-   }
+  m_chunks.clear();
 }

@@ -27,7 +27,7 @@ public:
     std::shared_ptr<Shader> getShader(const std::string& name);
 
 private:
-    std::unordered_map<std::string, std::shared_ptr<Shader>> _shaders;
+    std::unordered_map<std::string, std::shared_ptr<Shader>> m_shaders;
 
 
     // Empêche la copie
