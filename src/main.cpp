@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "Constants.h"
 #include "Cube.h"
 #include "GameEngine.h"
 #include "Noise.h"
@@ -17,17 +18,12 @@
 #include <math.h>
 #include <vector>
 
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
+namespace C = Constants; //  Pour ne pas à avoir à écrire Constants:: à chaque fois
 
 //TODO stocker dans des objets
-static const int _map_width = 64;
-static const int _map_height = 128;
-static const int _map_depth = 64;
-static const size_t _nb_blocks = _map_width * _map_height * _map_depth;
 static GLuint _buffer[1] = {0};
-static std::vector<GLuint> _data(_nb_blocks, 0); // Initialise avec 0 par défaut
-static const size_t _nb_threads_x = _nb_blocks / 1024;
+static std::vector<GLuint> _data(C::BLOCKS_PER_CHUNK, 0); // Initialise avec 0 par défaut
+static const size_t _nb_threads_x = C::BLOCKS_PER_CHUNK / 1024;
 static GLuint _vao = 0;
 
 static inline void process_map() {
@@ -39,26 +35,26 @@ static inline void process_map() {
   tex.bind(0);
   shader->set_uniform("permTexture", 0);
 
-  std::vector<GLuint> data(_nb_blocks);
+  std::vector<GLuint> data(C::BLOCKS_PER_CHUNK);
   // Génération des buffers
   glGenBuffers(1, _buffer);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer[0]);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, _nb_blocks * sizeof(GLuint), data.data(), GL_DYNAMIC_DRAW);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, C::BLOCKS_PER_CHUNK * sizeof(GLuint), data.data(), GL_DYNAMIC_DRAW);
   //
   glGenVertexArrays(1, &_vao);
   glBindVertexArray(_vao);
   glEnableVertexAttribArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, _buffer[0]);
-  glBufferData(GL_ARRAY_BUFFER, _nb_blocks * sizeof(GLuint), data.data(),
+  glBufferData(GL_ARRAY_BUFFER, C::BLOCKS_PER_CHUNK * sizeof(GLuint), data.data(),
                GL_DYNAMIC_DRAW);
   glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint),
                         (const void *)0);
   // Compute Shader
   shader->use();
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer[0]);
-  shader->set_uniform("map_width", _map_width);
-  shader->set_uniform("map_height", _map_height);
-  shader->set_uniform("map_depth", _map_depth);
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
   glDispatchCompute(_nb_threads_x, 1, 1);
   shader->stop();
   glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
@@ -98,15 +94,15 @@ static inline void draw_map(Camera cam) {
 
   glm::mat4 mvp = cam.get_proj() * cam.get_view();
   glBindVertexArray(_vao); // Associer VAO
-  shader->set_uniform("map_width", _map_width);
-  shader->set_uniform("map_height", _map_height);
-  shader->set_uniform("map_depth", _map_depth);
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
   shader->set_uniform("Lp", light_pos);
   shader->set_uniform("MVP", mvp);
   shader->set_uniform("view", cam.get_view());
 
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer[0]);
-  glDrawArrays(GL_POINTS, 0, _nb_blocks); // 1 vertex par bloc
+  glDrawArrays(GL_POINTS, 0, C::BLOCKS_PER_CHUNK); // 1 vertex par bloc
 
   shader->stop();
   glBindVertexArray(0);
@@ -154,7 +150,7 @@ int main() {
   glfwWindowHint(GLFW_SAMPLES, 4);
   glEnable(GL_MULTISAMPLE);
   GLFWwindow *window =
-      glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT,
+      glfwCreateWindow(C::WINDOW_WIDTH, C::WINDOW_HEIGHT,
                        "Minecraft lite - Moteur de jeux", NULL, NULL);
   if (!window) {
     glfwTerminate();
@@ -169,7 +165,7 @@ int main() {
   }
 
   // OpenGL API
-  glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+  glViewport(0, 0, C::WINDOW_WIDTH, C::WINDOW_HEIGHT);
 
   init();
   Camera cam = Camera(glm::vec3(50, 20, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
