@@ -132,8 +132,8 @@ static inline void draw(Camera cam){
 
 static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
-  GLfloat dist = 300.0;
-  GLfloat vit = 0.2;
+  GLfloat dist = 30.0;
+  GLfloat vit = 0.0;
   cam.update(
       glm::vec3(1.2 * dist * sin(vit * current_time), dist * 0.5, dist * cos(vit * current_time)),
       glm::vec3(0.2 * dist, 0.1 * dist, 0.2 * dist), glm::vec3(0.0, 1.0, 0.0));

@@ -16,11 +16,13 @@ namespace C = Constants; //  Pour ne pas à avoir à écrire Constants:: à chaq
 
 class Chunk {
 public:
-  Chunk(size_t x, size_t z);
+  Chunk(int x, int z);
   ~Chunk();
 
 private:
-  const std::vector<GLuint> m_data{C::BLOCKS_PER_CHUNK, 0};
+  int m_x, m_z;
+  GLuint m_buffer, m_vao;
+  std::vector<GLuint> m_data{C::BLOCKS_PER_CHUNK, 0};
 };
 
 #endif // CHUNK_H_
