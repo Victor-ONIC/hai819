@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "Chunk.h"
+#include "ChunkBuilder.h"
 #include "World.h"
 #include "Constants.h"
 #include "Cube.h"
@@ -31,13 +32,19 @@ static GLuint _vao = 0;
 static inline void process_map() {
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
+  World &world = World::getInstance();
+  ChunkBuilder chunkbuilder = ChunkBuilder();
+  world.initChunk(0, 0);
+  chunkbuilder.build(world.getChunk(0, 0));
+  return;
+
   std::shared_ptr<Shader> shader = shader_manager.getShader("mapCompute");
   Noise noise = Noise(256);
   Texture tex = Texture(noise.m_buffer, 256, 256);
   tex.bind(0);
   shader->set_uniform("permTexture", 0);
 
-  std::vector<GLuint> data(C::BLOCKS_PER_CHUNK);
+  std::vector<GLuint> data(C::BLOCKS_PER_CHUNK, 0);
   // Génération des buffers
   glGenBuffers(1, _buffer);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer[0]);
@@ -63,10 +70,6 @@ static inline void process_map() {
 }
 
 static inline void init() {
-  Chunk chu = Chunk(3, 3);
-  World w = World();
-  w.initChunk(4, -5);
-  w.tryGetChunk(1, 2);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
 
@@ -87,6 +90,7 @@ static inline void draw_map(Camera cam) {
   glm::vec4 light_pos = glm::vec4(300.0, 500.0, 200.0, 1.0);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
+  World &world = World::getInstance();
   std::shared_ptr<Shader> shader = shader_manager.getShader("mapDraw");
   shader->use();
   //DRAW
@@ -99,7 +103,7 @@ static inline void draw_map(Camera cam) {
 
 
   glm::mat4 mvp = cam.get_proj() * cam.get_view();
-  glBindVertexArray(_vao); // Associer VAO
+  glBindVertexArray(world.getChunk(0, 0).get_vao()); // Associer VAO
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
@@ -107,7 +111,7 @@ static inline void draw_map(Camera cam) {
   shader->set_uniform("MVP", mvp);
   shader->set_uniform("view", cam.get_view());
 
-  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer[0]);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, world.getChunk(0, 0).get_buffer());
   glDrawArrays(GL_POINTS, 0, C::BLOCKS_PER_CHUNK); // 1 vertex par bloc
 
   shader->stop();

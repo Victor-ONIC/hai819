@@ -22,6 +22,17 @@ Chunk::Chunk(int x, int z){
 
 }
 
+void Chunk::bind(){
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_buffer);
+  glBindVertexArray(m_vao);
+  glEnableVertexAttribArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, m_buffer);
+  glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint), (const void *)0);
+}
+
+GLuint Chunk::get_buffer() { return m_buffer; }
+GLuint Chunk::get_vao() { return m_vao; }
+
 Chunk::~Chunk() {
   if (m_buffer != 0) {
     glDeleteBuffers(1, &m_buffer);

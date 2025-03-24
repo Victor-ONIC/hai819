@@ -18,6 +18,9 @@ class Chunk {
 public:
   Chunk(int x, int z);
   ~Chunk();
+    void bind();
+    GLuint get_buffer();
+    GLuint get_vao();
 
 private:
   int m_x, m_z;

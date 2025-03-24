@@ -12,14 +12,8 @@ bool World::hasChunk(int x, int z) const {
     return m_chunks.find(key) != m_chunks.end();
 }
 
-Chunk* World::findChunk(int x, int z) {
-    ChunkKey key(x, z);
-    auto it = m_chunks.find(key);
-    return (it != m_chunks.end()) ? &it->second : nullptr;
-}
-
 Chunk& World::getChunk(int x, int z) {
-    Chunk* chunk = findChunk(x, z);
+    Chunk* chunk = tryGetChunk(x, z);
     if (!chunk) {
         throw std::runtime_error("Chunk " + std::to_string(x) + ", " + std::to_string(z) + " doesn't exist!");
     }
@@ -35,6 +29,7 @@ void World::initChunk(int x, int z) {
     }
 }
 
+// Permet d'obtenir un chunk (x,z) si il existe, sinon renvoi un nullptr
 Chunk* World::tryGetChunk(int x, int z) {
   ChunkKey key(x, z);
   auto it = m_chunks.find(key);
