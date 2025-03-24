@@ -25,7 +25,7 @@ public:
 private:
   int m_x, m_z;
   GLuint m_buffer, m_vao;
-  std::vector<GLuint> m_data{C::BLOCKS_PER_CHUNK, 0};
+    std::vector<GLuint> m_data{C::BLOCKS_PER_CHUNK, 1};
 };
 
 #endif // CHUNK_H_

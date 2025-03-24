@@ -15,9 +15,8 @@ public:
 
   // Accéder à un chunk (modification possible)
   bool hasChunk(int x, int z) const;
-  Chunk &getChunk(int x, int z);
   void initChunk(int x, int z);
-  Chunk *tryGetChunk(int x, int z);
+  Chunk *tryGetChunk(int x, int z);// TODO modifier pour ne pas avoir à gérer un nullptr
 
 private:
 

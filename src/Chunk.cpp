@@ -17,8 +17,8 @@ Chunk::Chunk(int x, int z){
   glBindBuffer(GL_ARRAY_BUFFER, m_buffer);
   glBufferData(GL_ARRAY_BUFFER, C::BLOCKS_PER_CHUNK * sizeof(GLuint), m_data.data(),
                GL_DYNAMIC_DRAW);
-  //glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint),
-                        //(const void *)0);
+  glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint),
+                        (const void *)0);
 
 }
 

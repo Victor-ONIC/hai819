@@ -18,16 +18,17 @@ void ChunkBuilder::addShader(const std::string &name) {
 ChunkBuilder::~ChunkBuilder() {
 }
 
-//Prend un Chunk et exécute la pipeline pour le build
-void ChunkBuilder::build(Chunk chunk) {
+// Prend un Chunk et exécute la pipeline pour le build
+void ChunkBuilder::build(Chunk *chunk) {
   Noise noise = Noise(256);
   Texture tex = Texture(noise.m_buffer, 256, 256);
   tex.bind(0);
   for (const auto &shader : m_shaders_pipeline) { // Référence constante, pas de copie
-    std::cout << shader.get() << " " << std::endl;
     shader->set_uniform("permTexture", 0);
+    glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint),
+                          (const void *)0);
     shader->use();
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk.get_buffer());
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_buffer());
     shader->set_uniform("map_width", C::CHUNK_WIDTH);
     shader->set_uniform("map_height", C::CHUNK_HEIGHT);
     shader->set_uniform("map_depth", C::CHUNK_DEPTH);

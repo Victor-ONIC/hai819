@@ -25,7 +25,7 @@ namespace C = Constants; //  Pour ne pas à avoir à écrire Constants:: à chaq
 
 //TODO stocker dans des objets
 static GLuint _buffer[1] = {0};
-static std::vector<GLuint> _data(C::BLOCKS_PER_CHUNK, 0); // Initialise avec 0 par défaut
+static std::vector<GLuint> _data(C::BLOCKS_PER_CHUNK, 1); // Initialise avec 0 par défaut
 static const size_t _nb_threads_x = C::BLOCKS_PER_CHUNK / 1024;
 static GLuint _vao = 0;
 
@@ -35,8 +35,7 @@ static inline void process_map() {
   World &world = World::getInstance();
   ChunkBuilder chunkbuilder = ChunkBuilder();
   world.initChunk(0, 0);
-  chunkbuilder.build(world.getChunk(0, 0));
-  return;
+  chunkbuilder.build(world.tryGetChunk(0, 0));
 
   std::shared_ptr<Shader> shader = shader_manager.getShader("mapCompute");
   Noise noise = Noise(256);
@@ -101,9 +100,11 @@ static inline void draw_map(Camera cam) {
   shader->set_uniform("grass_tex", 0);
   shader->set_uniform("water_tex", 1);
 
+  //std::cout << "chunk vao :   " << world.tryGetChunk(0, 0)->get_vao() << std::endl;
+  //std::cout << "chunk buffer id :    " << world.tryGetChunk(0, 0)->get_buffer() << std::endl;
 
   glm::mat4 mvp = cam.get_proj() * cam.get_view();
-  glBindVertexArray(world.getChunk(0, 0).get_vao()); // Associer VAO
+  glBindVertexArray(_vao); // Associer VAO
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
@@ -111,7 +112,7 @@ static inline void draw_map(Camera cam) {
   shader->set_uniform("MVP", mvp);
   shader->set_uniform("view", cam.get_view());
 
-  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, world.getChunk(0, 0).get_buffer());
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer[0]);
   glDrawArrays(GL_POINTS, 0, C::BLOCKS_PER_CHUNK); // 1 vertex par bloc
 
   shader->stop();

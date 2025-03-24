@@ -22,7 +22,7 @@ public:
   ChunkBuilder();
   ~ChunkBuilder();
   void addShader(const std::string &name);
-  void build(Chunk chunk);
+  void build(Chunk* chunk);
 
 private:
   std::vector< std::shared_ptr<Shader>> m_shaders_pipeline;
