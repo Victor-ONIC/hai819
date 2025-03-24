@@ -1,4 +1,7 @@
 #version 460
+#extension GL_ARB_shader_storage_buffer_object : enable
+#extension GL_EXT_debug_printf : enable  // Active debugPrintf
+
 #define M_PI 3.1415926535897932384626433832795
 
 layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
@@ -137,4 +140,5 @@ void main()
     data[gid] = 0;
     data[gid] = compute_2D(noise_2D, ground_height, ind3D.y);
     data[gid] = compute_3D(noise_3D, max_empty);
+    //debugPrintfEXT("data[%u] = %u\n", gid, data[gid]);
 }

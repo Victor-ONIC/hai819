@@ -36,6 +36,7 @@ static inline void process_map() {
   ChunkBuilder chunkbuilder = ChunkBuilder();
   world.initChunk(0, 0);
   chunkbuilder.build(world.tryGetChunk(0, 0));
+  return;
 
   std::shared_ptr<Shader> shader = shader_manager.getShader("mapCompute");
   Noise noise = Noise(256);
@@ -57,6 +58,7 @@ static inline void process_map() {
                GL_DYNAMIC_DRAW);
   glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint),
                         (const void *)0);
+
   // Compute Shader
   shader->use();
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer[0]);
@@ -104,7 +106,8 @@ static inline void draw_map(Camera cam) {
   //std::cout << "chunk buffer id :    " << world.tryGetChunk(0, 0)->get_buffer() << std::endl;
 
   glm::mat4 mvp = cam.get_proj() * cam.get_view();
-  glBindVertexArray(_vao); // Associer VAO
+  //glBindVertexArray(_vao); // Associer VAO
+  glBindVertexArray(world.tryGetChunk(0, 0)->get_vao()); // Associer VAO
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
@@ -112,7 +115,8 @@ static inline void draw_map(Camera cam) {
   shader->set_uniform("MVP", mvp);
   shader->set_uniform("view", cam.get_view());
 
-  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer[0]);
+  //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer[0]);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, world.tryGetChunk(0, 0)->get_buffer());
   glDrawArrays(GL_POINTS, 0, C::BLOCKS_PER_CHUNK); // 1 vertex par bloc
 
   shader->stop();
@@ -174,7 +178,6 @@ int main() {
     glfwTerminate();
     return -200;
   }
-
   // OpenGL API
   glViewport(0, 0, C::WINDOW_WIDTH, C::WINDOW_HEIGHT);
 

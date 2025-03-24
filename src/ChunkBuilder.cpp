@@ -20,22 +20,36 @@ ChunkBuilder::~ChunkBuilder() {
 
 // Prend un Chunk et exécute la pipeline pour le build
 void ChunkBuilder::build(Chunk *chunk) {
+  ShaderManager &shader_manager = ShaderManager::getInstance();
   Noise noise = Noise(256);
   Texture tex = Texture(noise.m_buffer, 256, 256);
+  std::shared_ptr<Shader> shader = shader_manager.getShader("mapCompute");
   tex.bind(0);
-  for (const auto &shader : m_shaders_pipeline) { // Référence constante, pas de copie
-    shader->set_uniform("permTexture", 0);
-    glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint),
-                          (const void *)0);
-    shader->use();
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_buffer());
-    shader->set_uniform("map_width", C::CHUNK_WIDTH);
-    shader->set_uniform("map_height", C::CHUNK_HEIGHT);
-    shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-    glDispatchCompute(C::BLOCKS_PER_CHUNK / 1024, 1, 1);
-    shader->stop();
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-  }
+  //for (const auto &shader : m_shaders_pipeline) { // Référence constante, pas de copie
+  glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint),
+                        (const void *)0);
+  shader->use();
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_buffer());
+  shader->set_uniform("permTexture", 0);
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  glDispatchCompute(C::BLOCKS_PER_CHUNK / 1024, 1, 1);
+  shader->stop();
+  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+  std::cout << "glerror : " << glGetError() << std::endl;
+  std::cout << "chunk get buffer : " << chunk->get_buffer() << std::endl;
+
+std::vector<GLuint> buffer_data(C::BLOCKS_PER_CHUNK);
+glBindBuffer(GL_SHADER_STORAGE_BUFFER, chunk->get_buffer());
+glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, C::BLOCKS_PER_CHUNK * sizeof(GLuint), buffer_data.data());
+glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+// Affichage
+for (size_t i = 0; i < buffer_data.size(); ++i) {
+    //std::cout << "data[" << i << "] = " << buffer_data[i] << std::endl;
+}
+
 }
 /*
   ShaderManager &shader_manager = ShaderManager::getInstance();

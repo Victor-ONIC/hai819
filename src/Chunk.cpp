@@ -19,7 +19,6 @@ Chunk::Chunk(int x, int z){
                GL_DYNAMIC_DRAW);
   glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint),
                         (const void *)0);
-
 }
 
 void Chunk::bind(){
