@@ -5,6 +5,7 @@
 #include "ChunkKey.h"
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 class World {
 public:
@@ -25,7 +26,8 @@ private:
     World(const World&) = delete;
     World& operator=(const World&) = delete;
   size_t m_width, m_depth; // Dimensions en nombre de chunks
-  std::unordered_map<ChunkKey, Chunk> m_chunks;
+  //std::unordered_map<ChunkKey, Chunk> m_chunks;
+        std::unordered_map<ChunkKey, std::unique_ptr<Chunk>> m_chunks;
 };
 
 #endif // WORLD_H
