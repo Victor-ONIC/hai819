@@ -135,8 +135,7 @@ static inline void init() {
   World &world = World::getInstance();
   ChunkBuilder chunkbuilder = ChunkBuilder();
   world.initChunk(0, 0);
-  Chunk * c = world.tryGetChunk(0, 0);
-  //chunkbuilder.build(world.tryGetChunk(0, 0));
+  chunkbuilder.build(world.tryGetChunk(0, 0));
   glEnable(GL_DEPTH_TEST);
 }
 

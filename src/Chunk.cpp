@@ -5,7 +5,6 @@
 #include "Shader.h"
 #include "ShaderManager.h"
 
-/*
 Chunk::Chunk(int x, int z) {
   std::fill(m_data.begin(), m_data.end(), 2);
   //  Indices du chunk
@@ -27,8 +26,8 @@ Chunk::Chunk(int x, int z) {
   glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint),
                         (const void *)0);
 }
-*/
 
+/*
 Chunk::Chunk(int x, int z) {
   ShaderManager &shader_manager = ShaderManager::getInstance();
   std::fill(m_data.begin(), m_data.end(), 2);
@@ -67,6 +66,7 @@ Chunk::Chunk(int x, int z) {
   shader->stop();
   glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
+*/
 
 void Chunk::bind() {
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_buffer);
