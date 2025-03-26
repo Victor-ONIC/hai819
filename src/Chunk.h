@@ -19,12 +19,10 @@ namespace C =
 class Chunk {
 public:
   Chunk(int x, int z);
-  ~Chunk();
-  void bind();
   GLuint get_buffer();
   GLuint get_vao();
-  void print_buffer();
-  std::array<GLuint, C::BLOCKS_PER_CHUNK> m_data{};
+  ~Chunk();
+  std::array<GLuint, C::BLOCKS_PER_CHUNK> m_data{};//TODO Private ? Mais du coup changer l'interaction avec ChunkBuilder
 
 private:
   int m_x, m_z;

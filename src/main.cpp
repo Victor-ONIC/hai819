@@ -23,21 +23,12 @@
 
 namespace C = Constants; //  Pour ne pas à avoir à écrire Constants:: à chaque fois
 
-//TODO stocker dans des objets
-static GLuint _buffer = 0;
-//static std::vector<GLuint> _data(C::BLOCKS_PER_CHUNK, 1); // Initialise avec 0 par défaut
- std::array<GLuint, C::BLOCKS_PER_CHUNK> _data{};
-static const size_t _nb_threads_x = C::BLOCKS_PER_CHUNK / 1024;
-static GLuint _vao = 0;
-//static Chunk * chu;
-
 static inline void draw_chunk(Camera cam){
   glm::vec4 light_pos = glm::vec4(300.0, 500.0, 200.0, 1.0);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
   World &world = World::getInstance();
   Chunk * chunk = world.tryGetChunk(0, 0);
-  //std::cout << "m_data.size = " << chunk->m_data.size() << std::endl;
 
   std::shared_ptr<Shader> shader = shader_manager.getShader("mapDraw");
   shader->use();
@@ -66,56 +57,10 @@ static inline void draw_chunk(Camera cam){
 }
 
 static inline void process_chunk(Chunk& chunk){
-    /*
-  GameEngine &engine = GameEngine::getInstance();
-  ShaderManager &shader_manager = ShaderManager::getInstance();
-  World &world = World::getInstance();
-  ChunkBuilder chunkbuilder = ChunkBuilder();
-  world.initChunk(0, 0);
-  Chunk * c = world.tryGetChunk(0, 0);
-  chunkbuilder.build(world.tryGetChunk(0, 0));
-  */
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
   ChunkBuilder chunkbuilder = ChunkBuilder();
   chunkbuilder.build(&chunk);
-}
-
-static inline void process_map() {
-  GameEngine &engine = GameEngine::getInstance();
-  ShaderManager &shader_manager = ShaderManager::getInstance();
-
-  std::shared_ptr<Shader> shader = shader_manager.getShader("mapCompute");
-  Noise noise = Noise(256);
-  Texture tex = Texture(noise.m_buffer, 256, 256);
-  tex.bind(0);
-  shader->set_uniform("permTexture", 0);
-
-  //std::vector<GLuint data(C::BLOCKS_PER_CHUNK, 0);
-  std::array<GLuint, C::BLOCKS_PER_CHUNK> data{};
-  // Génération des buffers
-  glGenBuffers(1, &_buffer);
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, C::BLOCKS_PER_CHUNK * sizeof(GLuint), data.data(), GL_DYNAMIC_DRAW);
-  //
-  glGenVertexArrays(1, &_vao);
-  glBindVertexArray(_vao);
-  glEnableVertexAttribArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, _buffer);
-  glBufferData(GL_ARRAY_BUFFER, C::BLOCKS_PER_CHUNK * sizeof(GLuint), data.data(),
-               GL_DYNAMIC_DRAW);
-  glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint),
-                        (const void *)0);
-
-  // Compute Shader
-  shader->use();
-  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer);
-  shader->set_uniform("map_width", C::CHUNK_WIDTH);
-  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
-  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  glDispatchCompute(_nb_threads_x, 1, 1);
-  shader->stop();
-  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 static inline void init() {
@@ -139,37 +84,6 @@ static inline void init() {
   glEnable(GL_DEPTH_TEST);
 }
 
-static inline void draw_map(Camera cam) {
-  glm::vec4 light_pos = glm::vec4(300.0, 500.0, 200.0, 1.0);
-  GameEngine &engine = GameEngine::getInstance();
-  ShaderManager &shader_manager = ShaderManager::getInstance();
-
-  std::shared_ptr<Shader> shader = shader_manager.getShader("mapDraw");
-  shader->use();
-  //DRAW
-  Texture grass("../res/textures/grass.jpg");
-  Texture water("../res/textures/water.jpg");
-  grass.bind(0);
-  water.bind(1);
-  shader->set_uniform("grass_tex", 0);
-  shader->set_uniform("water_tex", 1);
-  glm::mat4 mvp = cam.get_proj() * cam.get_view();
-  glBindVertexArray(_vao); // Associer VAO
-  shader->set_uniform("map_width", C::CHUNK_WIDTH);
-  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
-  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  shader->set_uniform("Lp", light_pos);
-  shader->set_uniform("MVP", mvp);
-  shader->set_uniform("view", cam.get_view());
-
-  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer);
-  glDrawArrays(GL_POINTS, 0, C::BLOCKS_PER_CHUNK); // 1 vertex par bloc
-
-  shader->stop();
-  glBindVertexArray(0);
-  glUseProgram(0);
-}
-
 static inline void draw_cube_repere(Camera cam) {
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
@@ -177,7 +91,6 @@ static inline void draw_cube_repere(Camera cam) {
   Cube c = Cube(shader);
   c.setPosition(glm::vec3(0, 0, 0));
   c.draw(cam.get_proj(), cam.get_view());
-  draw_map(cam);
   glBindVertexArray(0);
   shader->stop();
 }
@@ -228,7 +141,6 @@ int main() {
   glViewport(0, 0, C::WINDOW_WIDTH, C::WINDOW_HEIGHT);
 
   init();
-  //Chunk chu = Chunk(0, 0);
   Camera cam = Camera(glm::vec3(50, 20, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
   auto lastTime = std::chrono::high_resolution_clock::now();
   while (glfwGetKey(window, GLFW_KEY_L) != GLFW_PRESS &&

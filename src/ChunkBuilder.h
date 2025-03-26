@@ -20,9 +20,9 @@
 class ChunkBuilder {
 public:
   ChunkBuilder();
-  ~ChunkBuilder();
   void addShader(const std::string &name);
   void build(Chunk* chunk);
+  ~ChunkBuilder();
 
 private:
   std::vector< std::shared_ptr<Shader>> m_shaders_pipeline;

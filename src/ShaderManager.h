@@ -29,7 +29,6 @@ public:
 private:
     std::unordered_map<std::string, std::shared_ptr<Shader>> m_shaders;
 
-
     // Empêche la copie
     ShaderManager() = default;
     ~ShaderManager() = default; // Plus besoin de destructeur manuel

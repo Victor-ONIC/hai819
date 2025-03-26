@@ -8,15 +8,8 @@
 
 World::World(){}
 
-bool World::hasChunk(int x, int z) const {
-    ChunkKey key(x, z);
-    return m_chunks.find(key) != m_chunks.end();
-}
-
 //T0D0 : Changer pour ne pas à avoir à gérer un nullptr
 void World::initChunk(int x, int z) {
-//m_chunks[key] = std::make_unique<Chunk>(x, z);
-
     ChunkKey key(x, z);
     auto result = m_chunks.emplace(key, std::make_unique<Chunk>(x, z));
     if (!result.second) {
@@ -24,21 +17,15 @@ void World::initChunk(int x, int z) {
     }
 }
 
-// Permet d'obtenir un chunk (x,z) si il existe, sinon renvoi un nullptr
-/*
-Chunk* World::tryGetChunk(int x, int z) {
-  ChunkKey key(x, z);
-  auto it = m_chunks.find(key);
-  return (it != m_chunks.end()) ? &it->second : nullptr;
-
-}
- */
-
 Chunk* World::tryGetChunk(int x, int z) {
     auto it = m_chunks.find(ChunkKey(x, z));
     return (it != m_chunks.end()) ? it->second.get() : nullptr;
 }
 
+bool World::hasChunk(int x, int z) const {
+    ChunkKey key(x, z);
+    return m_chunks.find(key) != m_chunks.end();
+}
 
 World::~World(){
   m_chunks.clear();
