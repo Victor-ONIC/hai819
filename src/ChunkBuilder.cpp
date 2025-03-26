@@ -34,6 +34,7 @@ void ChunkBuilder::build(Chunk *chunk) {
     shader->stop();
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
   }
+  tex.unbind();
 }
 
 ChunkBuilder::~ChunkBuilder() {

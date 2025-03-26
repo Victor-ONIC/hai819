@@ -36,7 +36,6 @@ private:
     std::string read_shader(const std::string& path);
     void compile_shader(GLuint shader_id);
     void link_program();
-
     GLuint m_ID;
 };
 

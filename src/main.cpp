@@ -33,7 +33,8 @@ static inline void draw_chunk(Camera cam){
   std::shared_ptr<Shader> shader = shader_manager.getShader("mapDraw");
   shader->use();
   //DRAW
-  Texture grass("../res/textures/grass.jpg");
+  //TODO l'ordre des 4 lignes ci-dessous doit être garder sinon ça casse, ce qui n'est pas normal
+  Texture grass("../res/textures/grass.jpg");//TODO avoir un Texture Manager
   Texture water("../res/textures/water.jpg");
   grass.bind(0);
   water.bind(1);
@@ -78,7 +79,7 @@ static inline void init() {
                             "../res/shaders/cube_repere.frag");
 
   World &world = World::getInstance();
-  ChunkBuilder chunkbuilder = ChunkBuilder();
+  ChunkBuilder chunkbuilder = ChunkBuilder();//TODO Singleton Pattern ou un Manager
   world.initChunk(0, 0);
   chunkbuilder.build(world.tryGetChunk(0, 0));
   glEnable(GL_DEPTH_TEST);
@@ -106,11 +107,11 @@ static inline void draw(Camera cam){
 
 static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
-  GLfloat dist = 200.0;
-  GLfloat vit = 1.0;
+  GLfloat dist = 150.0;
+  GLfloat vit = 0.1;
   cam.update(
-      glm::vec3(1.2 * dist * sin(vit * current_time), dist * 0.5, dist * cos(vit * current_time)),
-      glm::vec3(0.2 * dist, 0.1 * dist, 0.2 * dist), glm::vec3(0.0, 1.0, 0.0));
+      glm::vec3(1.2 * dist * sin(vit * current_time), dist * 0.4, dist * cos(vit * current_time)),
+      glm::vec3(0.7 * dist, 0.1 * dist, 0.9 * dist), glm::vec3(0.0, 1.0, 0.0));
 }
 
 int main() {
