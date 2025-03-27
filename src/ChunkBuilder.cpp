@@ -30,6 +30,7 @@ void ChunkBuilder::build(Chunk *chunk) {
     shader->set_uniform("map_width", C::CHUNK_WIDTH);
     shader->set_uniform("map_height", C::CHUNK_HEIGHT);
     shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+    // shader->set_all_uniforms();
     glDispatchCompute(C::BLOCKS_PER_CHUNK / 1024, 1, 1);
     shader->stop();
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);

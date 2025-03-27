@@ -56,46 +56,6 @@ float noise(vec2 P, float coef_pow, int bool_pow)
   return n_xy;
 }
 
-float noise(vec3 P, float coef_pow, int bool_pow){
-  vec3 Pi = ONE*floor(P)+ONEHALF; // Integer part, scaled so +1 moves one texel
-                                  // and offset 1/2 texel to sample texel centers
-  vec3 Pf = fract(P);     // Fractional part for interpolation
-  // Noise contributions from (x=0, y=0), z=0 and z=1
-  float perm00 = texture(permTexture, Pi.xy).a ;
-  vec3  grad000 = texture(permTexture, vec2(perm00, Pi.z)).rgb * 4.0 - 1.0;
-  float n000 = dot(grad000, Pf);
-  vec3  grad001 = texture(permTexture, vec2(perm00, Pi.z + ONE)).rgb * 4.0 - 1.0;
-  float n001 = dot(grad001, Pf - vec3(0.0, 0.0, 1.0));
-  // Noise contributions from (x=0, y=1), z=0 and z=1
-  float perm01 = texture(permTexture, Pi.xy + vec2(0.0, ONE)).a ;
-  vec3  grad010 = texture(permTexture, vec2(perm01, Pi.z)).rgb * 4.0 - 1.0;
-  float n010 = dot(grad010, Pf - vec3(0.0, 1.0, 0.0));
-  vec3  grad011 = texture(permTexture, vec2(perm01, Pi.z + ONE)).rgb * 4.0 - 1.0;
-  float n011 = dot(grad011, Pf - vec3(0.0, 1.0, 1.0));
-  // Noise contributions from (x=1, y=0), z=0 and z=1
-  float perm10 = texture(permTexture, Pi.xy + vec2(ONE, 0.0)).a ;
-  vec3  grad100 = texture(permTexture, vec2(perm10, Pi.z)).rgb * 4.0 - 1.0;
-  float n100 = dot(grad100, Pf - vec3(1.0, 0.0, 0.0));
-  vec3  grad101 = texture(permTexture, vec2(perm10, Pi.z + ONE)).rgb * 4.0 - 1.0;
-  float n101 = dot(grad101, Pf - vec3(1.0, 0.0, 1.0));
-  // Noise contributions from (x=1, y=1), z=0 and z=1
-  float perm11 = texture(permTexture, Pi.xy + vec2(ONE, ONE)).a ;
-  vec3  grad110 = texture(permTexture, vec2(perm11, Pi.z)).rgb * 4.0 - 1.0;
-  float n110 = dot(grad110, Pf - vec3(1.0, 1.0, 0.0));
-  vec3  grad111 = texture(permTexture, vec2(perm11, Pi.z + ONE)).rgb * 4.0 - 1.0;
-  float n111 = dot(grad111, Pf - vec3(1.0, 1.0, 1.0));
-  // Blend contributions along x
-  vec4 n_x = mix(vec4(n000, n001, n010, n011),
-                 vec4(n100, n101, n110, n111), fade(Pf.x));
-  // Blend contributions along y
-  vec2 n_xy = mix(n_x.xy, n_x.zw, fade(Pf.y));
-  // Blend contributions along z
-  float n_xyz = mix(n_xy.x, n_xy.y, fade(Pf.z));
-  // We're done, return the final noise value.
-  if(bool_pow == 1) return pow(abs(n_xyz), coef_pow); // Réduit les zones plates
-  return n_xyz;
-}
-
 // Fonction pour convertir un index 1D en coordonnées 3D (x, y, z)
 vec3 index1DTo3D(uint index, uint width, uint height, uint depth) {
     uint y = index / (width * depth);
@@ -106,38 +66,28 @@ vec3 index1DTo3D(uint index, uint width, uint height, uint depth) {
 
 uint compute_2D(float noise, float ground_height, float ind3D_y){
     if((noise / 4.0) + ground_height > ind3D_y) return 1;
+    if(ind3D_y < 5) return 2;
     return 0;
-}
-
-uint compute_3D(float noise, float max_empty){
-    if(300.0 * noise < (max_empty * 0.1)) return 0;
-    return 1;
 }
 
 void main()
 {
-    vec3 pos;
     uint gid = gl_GlobalInvocationID.x;
-    float noise_2D = 0.0, noise_3D = 0.0, A = 1.0, mf = 1.0;
+    float noise_2D = 0.0, A = 1.0, mf = 1.0;
     vec3 offset = vec3(1.0);
-    float zoom2D = 1.5, zoom3D = 0.7;
+    float zoom2D = 1.5;
     vec3 ind3D = index1DTo3D(gid, map_width, map_height, map_depth);
     vec2 indxz = ind3D.xz;
-    float coef_pow2D = 1.85, coef_pow3D = 6.85;
-    int bool_pow2D = 0, bool_pow3D = 0;
+    float coef_pow2D = 1.85;
+    int bool_pow2D = 0;
     float ground_height = 0.25;
-    float max_empty = 1.0 - abs(0.5 - ind3D.y) + 0.85;
 
     for(int i = 0; i < 5; ++i) {
         noise_2D += A * noise(zoom2D * mf * indxz, coef_pow2D, bool_pow2D);
-        noise_3D += A * noise(zoom3D * mf * ind3D, coef_pow3D, bool_pow3D);
         A = A / 2.0;
         mf = mf * 2.0;
     }
     //n = 1.0 - n;
     data[gid] = 0;
     data[gid] = compute_2D(noise_2D, ground_height, ind3D.y);
-    //data[gid] = compute_3D(noise_3D, max_empty);
-    //if(noise_3D > 0.5) data[gid] = 1;
-    //data[gid] = compute_3D(noise_3D, max_empty);
 }

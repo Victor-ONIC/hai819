@@ -1,4 +1,7 @@
 #include "Shader.h"
+#include <any>
+
+namespace C = Constants;
 
 Shader::Shader(const std::string& cs_path)
 {
@@ -122,31 +125,186 @@ void Shader::stop()
     glUseProgram(0);
 }
 
-void Shader::set_uniform(const std::string& name, int i)
-{
-    glUniform1i(glGetUniformLocation(m_ID, name.c_str()), i);
+// Ci-dessous tout les set_uniform correspondant aux types ValueType définit
+// dans Constants.h
+//
+// Scalaires
+void Shader::set_uniform(const std::string &name, int i) {
+  m_uniforms[name] = i;
+  glUniform1i(glGetUniformLocation(m_ID, name.c_str()), i);
+}
+void Shader::set_uniform(const std::string &name, unsigned int ui) {
+  m_uniforms[name] = ui;
+  glUniform1ui(glGetUniformLocation(m_ID, name.c_str()), ui);
+}
+void Shader::set_uniform(const std::string &name, float f) {
+  m_uniforms[name] = f;
+  glUniform1f(glGetUniformLocation(m_ID, name.c_str()), f);
 }
 
-void Shader::set_uniform(const std::string& name, float f)
-{
-    glUniform1f(glGetUniformLocation(m_ID, name.c_str()), f);
+void Shader::set_uniform(const std::string &name, double d) {
+  m_uniforms[name] = d;
+  glUniform1f(glGetUniformLocation(m_ID, name.c_str()), d);
 }
 
-void Shader::set_uniform(const std::string& name, float f1, float f2, float f3)
-{
-    glUniform3f(glGetUniformLocation(m_ID, name.c_str()), f1, f2, f3);
+// Vecteurs 2D
+void Shader::set_uniform(const std::string &name, int i1, int i2) {
+    m_uniforms[name] = std::pair(i1, i2);
+  glUniform2i(glGetUniformLocation(m_ID, name.c_str()), i1, i2);
 }
-
-void Shader::set_uniform(const std::string& name, float f1, float f2, float f3, float f4)
-{
-    glUniform4f(glGetUniformLocation(m_ID, name.c_str()), f1, f2, f3, f4);
+void Shader::set_uniform(const std::string &name, unsigned int ui1, unsigned int ui2) {
+    m_uniforms[name] = std::pair(ui1, ui2);
+  glUniform2ui(glGetUniformLocation(m_ID, name.c_str()), ui1, ui2);
 }
-
-void Shader::set_uniform(const std::string& name, const glm::vec4& vec) {
+void Shader::set_uniform(const std::string &name, float f1, float f2) {
+    m_uniforms[name] = std::pair(f1, f2);
+  glUniform2f(glGetUniformLocation(m_ID, name.c_str()), f1, f2);
+}
+void Shader::set_uniform(const std::string& name, const glm::vec2& vec) {
+    m_uniforms[name] = vec;
     glUniform4fv(glGetUniformLocation(m_ID, name.c_str()), 1, glm::value_ptr(vec));
 }
 
-void Shader::set_uniform(const std::string& name, const glm::mat4& matrix)
-{
-    glUniformMatrix4fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
+// Vecteurs 3D
+void Shader::set_uniform(const std::string &name, int i1, int i2, int i3) {
+    m_uniforms[name] = std::tuple(i1, i2, i3);
+  glUniform3i(glGetUniformLocation(m_ID, name.c_str()), i1, i2, i3);
 }
+void Shader::set_uniform(const std::string &name, unsigned int ui1, unsigned int ui2, unsigned int ui3) {
+    m_uniforms[name] = std::tuple(ui1, ui2, ui3);
+  glUniform3ui(glGetUniformLocation(m_ID, name.c_str()), ui1, ui2, ui3);
+}
+void Shader::set_uniform(const std::string &name, float f1, float f2, float f3) {
+    m_uniforms[name] = std::tuple(f1, f2, f3);
+  glUniform3f(glGetUniformLocation(m_ID, name.c_str()), f1, f2, f3);
+}
+void Shader::set_uniform(const std::string& name, const glm::vec3& vec) {
+    m_uniforms[name] = vec;
+    glUniform4fv(glGetUniformLocation(m_ID, name.c_str()), 1, glm::value_ptr(vec));
+}
+
+// Vecteurs 4D
+void Shader::set_uniform(const std::string &name, int i1, int i2, int i3, int i4) {
+    m_uniforms[name] = std::tuple(i1, i2, i3, i4);
+  glUniform4i(glGetUniformLocation(m_ID, name.c_str()), i1, i2, i3, i4);
+}
+void Shader::set_uniform(const std::string &name, unsigned int ui1, unsigned int ui2, unsigned int ui3, unsigned int ui4) {
+    m_uniforms[name] = std::tuple(ui1, ui2, ui3, ui4);
+  glUniform4ui(glGetUniformLocation(m_ID, name.c_str()), ui1, ui2, ui3, ui4);
+}
+void Shader::set_uniform(const std::string &name, float f1, float f2, float f3,
+                         float f4) {
+    m_uniforms[name] = std::tuple(f1, f2, f3, f4);
+  glUniform4f(glGetUniformLocation(m_ID, name.c_str()), f1, f2, f3, f4);
+}
+void Shader::set_uniform(const std::string& name, const glm::vec4& vec) {
+    m_uniforms[name] = vec;
+    glUniform4fv(glGetUniformLocation(m_ID, name.c_str()), 1, glm::value_ptr(vec));
+}
+
+// Matrice 2x2
+void Shader::set_uniform(const std::string &name, const glm::mat2 &matrix) {
+    m_uniforms[name] = matrix;
+  glUniformMatrix2fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE,
+                     glm::value_ptr(matrix));
+}
+
+// Matrice 3x3
+void Shader::set_uniform(const std::string &name, const glm::mat3 &matrix) {
+    m_uniforms[name] = matrix;
+  glUniformMatrix3fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE,
+                     glm::value_ptr(matrix));
+}
+
+// Matrice 4x4
+void Shader::set_uniform(const std::string &name, const glm::mat4 &matrix) {
+    m_uniforms[name] = matrix;
+  glUniformMatrix4fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE,
+                     glm::value_ptr(matrix));
+}
+
+/*
+void Shader::set_all_uniforms(){
+    for (const auto& pair : m_uniforms) {
+        std::cout << "Clé: " << pair.first << std::endl;
+        set_uniform(pair.first, pair.second);
+    }
+}
+*/
+/*
+void Shader::set_all_uniforms() {
+    for (const auto& pair : m_uniforms) {
+        std::cout << "Clé: " << pair.first << std::endl;
+
+        // Utiliser std::visit pour déterminer le type et appeler la fonction correspondante
+        std::visit([this, &pair](auto&& value) {
+            using T = std::decay_t<decltype(value)>;
+
+            // Traitement des scalaires
+            if constexpr (std::is_same_v<T, int>) {
+                set_uniform(pair.first, value);
+            } else if constexpr (std::is_same_v<T, unsigned int>) {
+                set_uniform(pair.first, value);
+            } else if constexpr (std::is_same_v<T, float>) {
+                set_uniform(pair.first, value);
+            } else if constexpr (std::is_same_v<T, double>) {
+                set_uniform(pair.first, value);
+            }
+
+            // Traitement des vecteurs 2D
+            else if constexpr (std::is_same_v<T, std::pair<int, int>>) {
+                set_uniform(pair.first, value.first, value.second);
+            } else if constexpr (std::is_same_v<T, std::pair<unsigned int, unsigned int>>) {
+                set_uniform(pair.first, value.first, value.second);
+            } else if constexpr (std::is_same_v<T, std::pair<float, float>>) {
+                set_uniform(pair.first, value.first, value.second);
+            } else if constexpr (std::is_same_v<T, glm::vec2>) {
+                set_uniform(pair.first, value);
+            }
+
+            // Traitement des vecteurs 3D
+            else if constexpr (std::is_same_v<T, std::tuple<int, int, int>>) {
+                set_uniform(pair.first, std::get<0>(value), std::get<1>(value), std::get<2>(value));
+            } else if constexpr (std::is_same_v<T, std::tuple<unsigned int, unsigned int, unsigned int>>) {
+                set_uniform(pair.first, std::get<0>(value), std::get<1>(value), std::get<2>(value));
+            } else if constexpr (std::is_same_v<T, std::tuple<float, float, float>>) {
+                set_uniform(pair.first, std::get<0>(value), std::get<1>(value), std::get<2>(value));
+            } else if constexpr (std::is_same_v<T, glm::vec3>) {
+                set_uniform(pair.first, value);
+            }
+
+            // Traitement des vecteurs 4D
+            else if constexpr (std::is_same_v<T, std::tuple<int, int, int, int>>) {
+                set_uniform(pair.first, std::get<0>(value), std::get<1>(value), std::get<2>(value), std::get<3>(value));
+            } else if constexpr (std::is_same_v<T, std::tuple<unsigned int, unsigned int, unsigned int, unsigned int>>) {
+                set_uniform(pair.first, std::get<0>(value), std::get<1>(value), std::get<2>(value), std::get<3>(value));
+            } else if constexpr (std::is_same_v<T, std::tuple<float, float, float, float>>) {
+                set_uniform(pair.first, std::get<0>(value), std::get<1>(value), std::get<2>(value), std::get<3>(value));
+            } else if constexpr (std::is_same_v<T, glm::vec4>) {
+                set_uniform(pair.first, value);
+            }
+
+            // Traitement des matrices 2x2
+            else if constexpr (std::is_same_v<T, glm::mat2>) {
+                set_uniform(pair.first, value);
+            } else if constexpr (std::is_same_v<T, std::array<std::array<float, 2>, 2>>) {
+                set_uniform(pair.first, value);
+            }
+
+            // Traitement des matrices 3x3
+            else if constexpr (std::is_same_v<T, glm::mat3>) {
+                set_uniform(pair.first, value);
+            } else if constexpr (std::is_same_v<T, std::array<std::array<float, 3>, 3>>) {
+                set_uniform(pair.first, value);
+            }
+
+            // Traitement des matrices 4x4
+            else if constexpr (std::is_same_v<T, glm::mat4>) {
+                set_uniform(pair.first, value);
+            } else if constexpr (std::is_same_v<T, std::array<std::array<float, 4>, 4>>) {
+                set_uniform(pair.first, value);
+            }
+        }, pair.second);
+    }
+}
+*/

@@ -67,9 +67,15 @@ static inline void process_chunk(Chunk& chunk){
 static inline void init() {
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
+  std::shared_ptr<Shader> shader;
 
   // Compute Shader - Map Compute
   shader_manager.loadShader("mapCompute", "../res/shaders/map.comp");
+  shader = shader_manager.getShader("mapCompute");
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+
   // Map Draw Shader
   shader_manager.loadShader("mapDraw", "../res/shaders/voxels.vert",
                             "../res/shaders/voxels.frag",
@@ -77,6 +83,8 @@ static inline void init() {
   // Cube Repère Shader
   shader_manager.loadShader("cubeRepere", "../res/shaders/cube_repere.vert",
                             "../res/shaders/cube_repere.frag");
+
+
 
   World &world = World::getInstance();
   ChunkBuilder chunkbuilder = ChunkBuilder();//TODO Singleton Pattern ou un Manager
