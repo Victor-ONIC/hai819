@@ -26,45 +26,97 @@ public:
   void use();
   void stop();
 
-// Scalaires
-void set_uniform(const std::string &name, int i);
-void set_uniform(const std::string &name, unsigned int ui);
-void set_uniform(const std::string &name, float f);
-void set_uniform(const std::string &name, double d);
-
-// Vecteurs 2D
-void set_uniform(const std::string &name, int i1, int i2);
-void set_uniform(const std::string &name, unsigned int ui1, unsigned int ui2);
-void set_uniform(const std::string &name, float f1, float f2);
-void set_uniform(const std::string& name, const glm::vec2& vec);
-
-// Vecteurs 3D
-void set_uniform(const std::string &name, int i1, int i2, int i3);
-void set_uniform(const std::string &name, unsigned int ui1, unsigned int ui2, unsigned int ui3);
-void set_uniform(const std::string &name, float f1, float f2, float f3);
-void set_uniform(const std::string& name, const glm::vec3& vec);
-
-// Vecteurs 4D
-void set_uniform(const std::string &name, int i1, int i2, int i3, int i4);
-void set_uniform(const std::string &name, unsigned int ui1, unsigned int ui2, unsigned int ui3, unsigned int ui4);
-void set_uniform(const std::string &name, float f1, float f2, float f3,
-                         float f4);
-void set_uniform(const std::string& name, const glm::vec4& vec);
-
-// Matrice 2x2
-void set_uniform(const std::string &name, const glm::mat2 &matrix);
-
-// Matrice 3x3
-void set_uniform(const std::string &name, const glm::mat3 &matrix);
-
-// Matrice 4x4
-void set_uniform(const std::string &name, const glm::mat4 &matrix);
-
-// Parcours m_uniforms et set_uniform sur chacun de ses éléments
-void set_all_uniforms();
 
 // getID
 GLuint getID() const { return m_ID; }
+
+template <typename T>
+
+void set_uniform(const std::string& name, T&& value) {
+    if constexpr (std::is_same_v<std::decay_t<T>, int>) {
+        m_uniforms[name] = value;
+        glUniform1i(glGetUniformLocation(m_ID, name.c_str()), value);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, unsigned int>) {
+        m_uniforms[name] = value;
+        glUniform1ui(glGetUniformLocation(m_ID, name.c_str()), value);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, float>) {
+        m_uniforms[name] = value;
+        glUniform1f(glGetUniformLocation(m_ID, name.c_str()), value);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, double>) {
+        m_uniforms[name] = value;
+        glUniform1f(glGetUniformLocation(m_ID, name.c_str()), value);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, std::pair<int, int>>) {
+        m_uniforms[name] = value;
+        glUniform2i(glGetUniformLocation(m_ID, name.c_str()), value.first, value.second);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, std::pair<unsigned int, unsigned int>>) {
+        m_uniforms[name] = value;
+        glUniform2ui(glGetUniformLocation(m_ID, name.c_str()), value.first, value.second);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, std::pair<float, float>>) {
+        m_uniforms[name] = value;
+        glUniform2f(glGetUniformLocation(m_ID, name.c_str()), value.first, value.second);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, glm::vec2>) {
+        m_uniforms[name] = value;
+        glUniform2fv(glGetUniformLocation(m_ID, name.c_str()), 1, glm::value_ptr(value));
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, std::array<int, 3>>) {
+        m_uniforms[name] = value;
+        glUniform3i(glGetUniformLocation(m_ID, name.c_str()), value[0], value[1], value[2]);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, std::array<unsigned int, 3>>) {
+        m_uniforms[name] = value;
+        glUniform3ui(glGetUniformLocation(m_ID, name.c_str()), value[0], value[1], value[2]);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, std::array<float, 3>>) {
+        m_uniforms[name] = value;
+        glUniform3f(glGetUniformLocation(m_ID, name.c_str()), value[0], value[1], value[2]);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, glm::vec3>) {
+        m_uniforms[name] = value;
+        glUniform3fv(glGetUniformLocation(m_ID, name.c_str()), 1, glm::value_ptr(value));
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, std::array<int, 4>>) {
+        m_uniforms[name] = value;
+        glUniform4i(glGetUniformLocation(m_ID, name.c_str()), value[0], value[1], value[2], value[3]);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, std::array<unsigned int, 4>>) {
+        m_uniforms[name] = value;
+        glUniform4ui(glGetUniformLocation(m_ID, name.c_str()), value[0], value[1], value[2], value[3]);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, std::array<float, 4>>) {
+        m_uniforms[name] = value;
+        glUniform4f(glGetUniformLocation(m_ID, name.c_str()), value[0], value[1], value[2], value[3]);
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, glm::vec4>) {
+        m_uniforms[name] = value;
+        glUniform4fv(glGetUniformLocation(m_ID, name.c_str()), 1, glm::value_ptr(value));
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, glm::mat2>) {
+        m_uniforms[name] = value;
+        glUniformMatrix2fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, glm::mat3>) {
+        m_uniforms[name] = value;
+        glUniformMatrix3fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+    }
+    else if constexpr (std::is_same_v<std::decay_t<T>, glm::mat4>) {
+        m_uniforms[name] = value;
+        glUniformMatrix4fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+    }
+}
+
+void set_all_uniforms(){
+    for (const auto& pair : m_uniforms) {
+        std::cout << "Clé: " << pair.first << std::endl;
+        set_uniform(pair.first, pair.second);
+    }
+}
 
 private:
   std::string read_shader(const std::string &path);

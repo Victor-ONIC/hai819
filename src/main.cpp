@@ -69,12 +69,17 @@ static inline void init() {
   ShaderManager &shader_manager = ShaderManager::getInstance();
   std::shared_ptr<Shader> shader;
 
+
   // Compute Shader - Map Compute
   shader_manager.loadShader("mapCompute", "../res/shaders/map.comp");
   shader = shader_manager.getShader("mapCompute");
-  shader->set_uniform("map_width", C::CHUNK_WIDTH);
-  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
-  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+    shader->use();
+    //shader->set_uniform("permTexture", 0);
+    shader->set_uniform("map_width", C::CHUNK_WIDTH);
+    shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+    shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+    shader->stop();
+  //tex.unbind();
 
   // Map Draw Shader
   shader_manager.loadShader("mapDraw", "../res/shaders/voxels.vert",

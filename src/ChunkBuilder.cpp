@@ -20,17 +20,22 @@ void ChunkBuilder::build(Chunk *chunk) {
   ShaderManager &shader_manager = ShaderManager::getInstance();
   //TODO Des lignes ci-dessous sont propre à mapCompute, mais à généraliser pour d'autres shader
   //TODO Il faut une méthode de Shader pour charger les uniforms ect
+  //Noise noise = Noise(256);//TODO
+  //Texture tex = Texture(noise.m_buffer, 256, 256);//TODO
+  //tex.bind(0);//TODO
+
   Noise noise = Noise(256);//TODO
   Texture tex = Texture(noise.m_buffer, 256, 256);//TODO
   tex.bind(0);//TODO
-  for (const auto &shader : m_shaders_pipeline) { // Référence constante, pas de copie
+  for (const auto &shader :
+       m_shaders_pipeline) { // Référence constante, pas de copie
     shader->use();
     shader->set_uniform("permTexture", 0);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_buffer());
-    shader->set_uniform("map_width", C::CHUNK_WIDTH);
-    shader->set_uniform("map_height", C::CHUNK_HEIGHT);
-    shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-    // shader->set_all_uniforms();
+    //shader->set_uniform("map_width", C::CHUNK_WIDTH);
+    //shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+    //shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+    shader->set_all_uniforms();
     glDispatchCompute(C::BLOCKS_PER_CHUNK / 1024, 1, 1);
     shader->stop();
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
