@@ -26,8 +26,6 @@ public:
   void use();
   void stop();
 
-
-// getID
 GLuint getID() const { return m_ID; }
 
 template <typename T>

@@ -6,7 +6,7 @@
 #include "ShaderManager.h"
 
 Chunk::Chunk(int x, int z) {
-  std::fill(m_data.begin(), m_data.end(), 2);
+  std::fill(m_data.begin(), m_data.end(), 0);
   //  Indices du chunk
   m_x = x;
   m_z = z;

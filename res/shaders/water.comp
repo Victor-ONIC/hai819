@@ -65,7 +65,8 @@ vec3 index1DTo3D(uint index, uint width, uint height, uint depth) {
 }
 
 uint compute_2D(float noise, float ground_height, float ind3D_y){
-    if((noise / 4.0) + ground_height > ind3D_y) return 1;
+    //if((noise / 4.0) + ground_height > ind3D_y) return 1;
+    if(ind3D_y < 1) return 2;
     return 0;
 }
 
@@ -87,6 +88,7 @@ void main()
         mf = mf * 2.0;
     }
     //n = 1.0 - n;
-    data[gid] = 0;
-    data[gid] = compute_2D(noise_2D, ground_height, ind3D.y);
+    //data[gid] = 0;
+    //data[gid] = compute_2D(noise_2D, ground_height, ind3D.y);
+    if(data[gid] == 0 && ind3D.y < 0.25) data[gid] = 2;
 }

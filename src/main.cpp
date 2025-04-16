@@ -1,7 +1,6 @@
 #include "Camera.h"
 #include "Chunk.h"
 #include "ChunkBuilder.h"
-#include "World.h"
 #include "Constants.h"
 #include "Cube.h"
 #include "GameEngine.h"
@@ -9,6 +8,7 @@
 #include "Shader.h"
 #include "ShaderManager.h"
 #include "Texture.h"
+#include "World.h"
 #include "glm/gtx/transform.hpp"
 #include <GL/glew.h> // first
 #include <GLFW/glfw3.h>
@@ -21,20 +21,21 @@
 #include <math.h>
 #include <vector>
 
-namespace C = Constants; //  Pour ne pas à avoir à écrire Constants:: à chaque fois
+namespace C = Constants;
 
-static inline void draw_chunk(Camera cam){
+static inline void draw_chunk(Camera cam) {
   glm::vec4 light_pos = glm::vec4(300.0, 500.0, 200.0, 1.0);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
   World &world = World::getInstance();
-  Chunk * chunk = world.tryGetChunk(0, 0);
+  Chunk *chunk = world.tryGetChunk(0, 0);
 
   std::shared_ptr<Shader> shader = shader_manager.getShader("mapDraw");
   shader->use();
-  //DRAW
-  //TODO l'ordre des 4 lignes ci-dessous doit être garder sinon ça casse, ce qui n'est pas normal
-  Texture grass("../res/textures/grass.jpg");//TODO avoir un Texture Manager
+  // DRAW
+  // TODO l'ordre des 4 lignes ci-dessous doit être garder sinon ça casse, ce
+  // qui n'est pas normal
+  Texture grass("../res/textures/grass.jpg"); // TODO avoir un Texture Manager
   Texture water("../res/textures/water.jpg");
   grass.bind(0);
   water.bind(1);
@@ -57,7 +58,7 @@ static inline void draw_chunk(Camera cam){
   glUseProgram(0);
 }
 
-static inline void process_chunk(Chunk& chunk){
+static inline void process_chunk(Chunk &chunk) {
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
   ChunkBuilder chunkbuilder = ChunkBuilder();
@@ -69,17 +70,23 @@ static inline void init() {
   ShaderManager &shader_manager = ShaderManager::getInstance();
   std::shared_ptr<Shader> shader;
 
-
   // Compute Shader - Map Compute
   shader_manager.loadShader("mapCompute", "../res/shaders/map.comp");
   shader = shader_manager.getShader("mapCompute");
-    shader->use();
-    //shader->set_uniform("permTexture", 0);
-    shader->set_uniform("map_width", C::CHUNK_WIDTH);
-    shader->set_uniform("map_height", C::CHUNK_HEIGHT);
-    shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-    shader->stop();
-  //tex.unbind();
+  shader->use();
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  shader->stop();
+
+  // Compute Shader - Water Compute
+  shader_manager.loadShader("waterCompute", "../res/shaders/water.comp");
+  shader = shader_manager.getShader("waterCompute");
+  shader->use();
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  shader->stop();
 
   // Map Draw Shader
   shader_manager.loadShader("mapDraw", "../res/shaders/voxels.vert",
@@ -89,10 +96,9 @@ static inline void init() {
   shader_manager.loadShader("cubeRepere", "../res/shaders/cube_repere.vert",
                             "../res/shaders/cube_repere.frag");
 
-
-
   World &world = World::getInstance();
-  ChunkBuilder chunkbuilder = ChunkBuilder();//TODO Singleton Pattern ou un Manager
+  ChunkBuilder chunkbuilder =
+      ChunkBuilder(); // TODO Singleton Pattern ou un Manager
   world.initChunk(0, 0);
   chunkbuilder.build(world.tryGetChunk(0, 0));
   glEnable(GL_DEPTH_TEST);
@@ -109,7 +115,7 @@ static inline void draw_cube_repere(Camera cam) {
   shader->stop();
 }
 
-static inline void draw(Camera cam){
+static inline void draw(Camera cam) {
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -122,9 +128,10 @@ static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
   GLfloat dist = 150.0;
   GLfloat vit = 0.1;
-  cam.update(
-      glm::vec3(1.2 * dist * sin(vit * current_time), dist * 0.4, dist * cos(vit * current_time)),
-      glm::vec3(0.7 * dist, 0.1 * dist, 0.9 * dist), glm::vec3(0.0, 1.0, 0.0));
+  cam.update(glm::vec3(1.2 * dist * sin(vit * current_time), dist * 0.4,
+                       dist * cos(vit * current_time)),
+             glm::vec3(0.3 * dist, 0.1 * dist, 0.4 * dist),
+             glm::vec3(0.0, 1.0, 0.0));
 }
 
 int main() {
@@ -155,7 +162,8 @@ int main() {
   glViewport(0, 0, C::WINDOW_WIDTH, C::WINDOW_HEIGHT);
 
   init();
-  Camera cam = Camera(glm::vec3(50, 20, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  Camera cam =
+      Camera(glm::vec3(50, 20, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
   auto lastTime = std::chrono::high_resolution_clock::now();
   while (glfwGetKey(window, GLFW_KEY_L) != GLFW_PRESS &&
          glfwWindowShouldClose(window) == 0) {

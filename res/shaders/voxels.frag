@@ -31,7 +31,8 @@ void main(void) {
     }
     else if(frag_id[0] == 2){
         vec4 texColor = texture(water_tex, coord_tex);
-        fragColor = vec4((phongIL * texColor.rgb), 0.07);
+        fragColor = vec4((0.5 * texColor.rgb), 0.18);
+        //fragColor = vec4((phongIL * texColor.rgb), 0.17);
         //fragColor = vec4(normalize(gsoNormal) * 0.5 + 0.5, 1.0); //  Afficher les normals aux faces
         //fragColor = phongIL * vec4(0.0, 0.0, 1.0, 1.0);
     }
