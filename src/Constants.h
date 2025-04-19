@@ -12,9 +12,9 @@
 namespace Constants {
 constexpr int WINDOW_WIDTH = 1920;
 constexpr int WINDOW_HEIGHT = 1080;
-constexpr int CHUNK_WIDTH = 128;
-constexpr int CHUNK_HEIGHT = 64;
-constexpr int CHUNK_DEPTH = 128;
+constexpr int CHUNK_WIDTH = 256;
+constexpr int CHUNK_HEIGHT = 32;
+constexpr int CHUNK_DEPTH = 256;
 constexpr uint64_t BLOCKS_PER_CHUNK = CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH;
 
 using ValueType = std::variant<
@@ -38,5 +38,15 @@ using ValueType = std::variant<
 // Unordered_map utilisant ValueType déclaré ci-dessus
 using UniformMap = std::unordered_map<std::string, ValueType>;
 } // namespace Constants
+
+struct alignas(16) face {
+    glm::vec4 vert[4];             // 64 octets
+    glm::vec4 normal;              // 16 octets
+    uint32_t blocktype;            // 4 octets
+    uint32_t _pad0[3];             // 12 octets   -> PADDING pour aligner à 16 octets
+    glm::vec2 coord_tex;           // 8 octets
+    glm::vec2 _pad1;               // 8 octets    -> PADDING pour aligner à 16 octets
+                                   // -> 64 + 16 + 4 + 12 + 8 + 4 == 112 octets
+};
 
 #endif // CONSTANTS_HPP

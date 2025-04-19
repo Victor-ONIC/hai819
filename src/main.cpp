@@ -32,7 +32,6 @@ static inline void draw_chunk(Camera cam) {
 
   std::shared_ptr<Shader> shader = shader_manager.getShader("mapDraw");
   shader->use();
-  // DRAW
   // TODO l'ordre des 4 lignes ci-dessous doit être garder sinon ça casse, ce
   // qui n'est pas normal
   Texture grass("../res/textures/grass.jpg"); // TODO avoir un Texture Manager
@@ -88,6 +87,15 @@ static inline void init() {
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
   shader->stop();
 
+  // Compute Shader - Gen Vertices
+  shader_manager.loadShader("genVertices", "../res/shaders/gen_vertices.comp");
+  shader = shader_manager.getShader("genVertices");
+  shader->use();
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  shader->stop();
+
   // Map Draw Shader
   shader_manager.loadShader("mapDraw", "../res/shaders/voxels.vert",
                             "../res/shaders/voxels.frag",
@@ -128,9 +136,9 @@ static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
   GLfloat dist = 150.0;
   GLfloat vit = 0.1;
-  cam.update(glm::vec3(1.2 * dist * sin(vit * current_time), dist * 0.4,
-                       dist * cos(vit * current_time)),
-             glm::vec3(0.3 * dist, 0.1 * dist, 0.4 * dist),
+  cam.update(glm::vec3(1.5 * dist * sin(vit * current_time), dist * 0.3,
+                       2.5 * dist * cos(vit * current_time)),
+             glm::vec3(0.8 * dist, 0.0 * dist, 0.7 * dist),
              glm::vec3(0.0, 1.0, 0.0));
 }
 

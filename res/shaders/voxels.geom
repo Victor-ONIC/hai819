@@ -19,6 +19,7 @@ out vec3 normal;
 out vec4 gsoModPos;
 out vec3 gsoNormal;
 
+
 void main() {
     frag_id[0] = id[0]; // Transmission de l'id au fs
     vec3 pos = gl_in[0].gl_Position.xyz; // Position du point reçu

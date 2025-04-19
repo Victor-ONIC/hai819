@@ -1,3 +1,4 @@
+// Permet de sauvegarder et récupérer des shaders
 #include "ShaderManager.h"
 
 void ShaderManager::loadShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath, const std::string& geomPath) {

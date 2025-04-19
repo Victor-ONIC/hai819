@@ -9,6 +9,7 @@
 ChunkBuilder::ChunkBuilder() {
     addShader("mapCompute");
     addShader("waterCompute");
+    addShader("genVertices");
 }
 
 //Permet d'ajouter un programme GPU à la pipeline de build
@@ -28,6 +29,7 @@ void ChunkBuilder::build(Chunk *chunk) {
     shader->set_uniform("permTexture", 0);//TODO
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_buffer());
     shader->set_all_uniforms();
+    //glDispatchCompute(C::CHUNK_DEPTH / 8, C::CHUNK_HEIGHT / 8, C::CHUNK_DEPTH / 8);
     glDispatchCompute(C::BLOCKS_PER_CHUNK / 1024, 1, 1);
     shader->stop();
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
