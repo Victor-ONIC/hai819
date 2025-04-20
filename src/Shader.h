@@ -27,6 +27,8 @@ public:
   void stop();
 
 GLuint getID() const { return m_ID; }
+std::string get_path();
+void set_num_groups(uint32_t x, uint32_t y, uint32_t z);
 
 template <typename T>
 
@@ -111,17 +113,20 @@ void set_uniform(const std::string& name, T&& value) {
 
 void set_all_uniforms(){
     for (const auto& pair : m_uniforms) {
-        std::cout << "Clé: " << pair.first << std::endl;
         set_uniform(pair.first, pair.second);
     }
+    glDispatchCompute(m_num_groups[0], m_num_groups[1], m_num_groups[2]);
 }
+
 
 private:
   std::string read_shader(const std::string &path);
   void compile_shader(GLuint shader_id);
   void link_program();
+  std::string m_path;
   GLuint m_ID;
   C::UniformMap m_uniforms;
+  uint32_t m_num_groups[3] = {};
 };
 
 #endif

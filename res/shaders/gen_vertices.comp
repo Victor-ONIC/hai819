@@ -1,30 +1,29 @@
 #version 460
 
 struct face{
-    uint blockype;       // 4 octets
-    uvec3 _pad0;         // 12 octets    -> PADDING
-    vec4 vert[4];        // 64 octets
-    vec4 normal;         // 16 octets
-    vec2 coord_tex;      // 8 octets
-    vec2 _pad1;          // 8 octets     -> PADDING
-                         // 64 + 16 + 16 + 16 == 112 octets
+    uint blockype;        // 4 octets
+    vec4 vert[4];         // 64 octets
+    vec4 normal;          // 16 octets
+    vec2 coord_tex[4];    // 32 octets
+    float _padding[3];    // 12 octets
+                          // 4 + 64 + 16 + 32 + 12 == 128 octets
 };
-
-layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
-
-layout(std430, binding = 0) readonly buffer BlockData {
-    uint data[];
-};
-
-layout(std430, binding = 1) writeonly buffer FacesBuffer {
-    face faces[];
-};
-
-layout(binding = 2, offset = 0) uniform atomic_uint vertexCounter;
 
 uniform int map_width;
 uniform int map_height;
 uniform int map_depth;
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+
+layout(std430, binding = 0) buffer BlockData {
+    uint data[];
+};
+
+layout(std430, binding = 1) buffer FacesBuffer {
+    face faces[];
+};
+
+layout(binding = 2, offset = 0) uniform atomic_uint facesCounter;
 
 uint getBlock(int x, int y, int z) {
     if (x < 0 || y < 0 || z < 0 || x >= map_width || y >= map_height || z >= map_depth)
@@ -56,31 +55,31 @@ vec3 faceVerts[6][4] = vec3[6][4](
     vec3[4](vec3(0,0,1), vec3(0,1,1), vec3(1,0,1), vec3(1,1,1))
 );
 
-
 void emitFace(int f, vec3 pos, uint type) {
-    uint index = atomicCounterAdd(vertexCounter, 1);
-
+    uint index = atomicCounterAdd(facesCounter, 1);
     face newFace;
     newFace.blockype = type; // À adapter si tu veux utiliser `type` du voxel
     newFace._pad0 = uvec3(0); // Juste du padding
     for (int i = 0; i < 4; ++i) {
         newFace.vert[i] = vec4(pos + faceVerts[f][i], 1.0);
     }
-
     newFace.normal = vec4(offset[f], 0.0); // normale de la face
     newFace.coord_tex = vec2(0.0, 0.0);    // exemple simple, à adapter selon ton atlas
     newFace._pad1 = vec2(0.0);             // padding
-
     faces[index] = newFace;
 }
 
+// Fonction pour convertir (x, y, z) en un index 1D
+int index3DTo1D(int x, int y, int z, int width, int height) {
+    return x + y * width + z * (width * height);
+}
 
 void main() {
     ivec3 id = ivec3(gl_GlobalInvocationID.xyz);
     if (id.x >= map_width || id.y >= map_height || id.z >= map_depth)
         return;
 
-    uint index = id.x + id.y * map_width + id.z * map_width * map_height;
+    uint index = index3DTo1D(id.x, id.y, id.z, map_width, map_height);
     uint type = data[index];
     if (type == 0) return;
 

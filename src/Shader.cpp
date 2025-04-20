@@ -1,4 +1,5 @@
 #include "Shader.h"
+#include <cstdint>
 
 namespace C = Constants;
 
@@ -11,6 +12,7 @@ Shader::Shader(const std::string& cs_path)
     glShaderSource(cs_id, 1, &cs_code, NULL);
     this->compile_shader(cs_id);
 
+    m_path = cs_path;
     m_ID = glCreateProgram();
     glAttachShader(m_ID, cs_id);
     this->link_program();
@@ -107,6 +109,15 @@ void Shader::link_program()
 
         delete[] message;
     }
+}
+void Shader::set_num_groups(uint32_t x, uint32_t y, uint32_t z){
+    m_num_groups[0] = x;
+    m_num_groups[1] = y;
+    m_num_groups[2] = z;
+}
+
+std::string Shader::get_path (){
+    return m_path;
 }
 
 Shader::~Shader()

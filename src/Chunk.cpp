@@ -10,6 +10,18 @@ Chunk::Chunk(int x, int z) {
   //   Indices du chunk
   m_x = x;
   m_z = z;
+
+  // Counter face atomic set upGLuint atomicCounterBuffer;
+    GLuint zero = 0;
+  m_visibleFaceCounter = 0;
+  glGenBuffers(1, &m_bufferVisibleFaceCounter);
+  glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_bufferVisibleFaceCounter);
+  glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), nullptr, GL_DYNAMIC_DRAW);
+  glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), &zero);
+  // Lie le buffer à l’unité 2 (comme dans ton shader: `binding = 2`)
+  glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 2, m_bufferVisibleFaceCounter);
+
+
   //  Creation du buffer SSBO blocktype
   glGenBuffers(1, &m_buffer_blocktype);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_buffer_blocktype);
@@ -76,8 +88,23 @@ Chunk::Chunk(int x, int z) {
   glVertexAttribDivisor(6, 1);
 }
 
-GLuint Chunk::get_buffer() { return m_buffer_blocktype; }
-GLuint Chunk::get_vao() { return m_vao_blocktype; }
+GLuint Chunk::get_blocktype_buffer() { return m_buffer_blocktype; }
+GLuint Chunk::get_faces_buffer() { return m_buffer_faces; }
+GLuint Chunk::get_buffer_counter_faces() { return m_bufferVisibleFaceCounter; }
+GLuint Chunk::get_vao_blocktype() { return m_vao_blocktype; }
+GLuint Chunk::get_vao_faces() { return m_vao_faces; }
+
+void Chunk::reset_counter_faces(){
+    m_visibleFaceCounter = 0;
+}
+
+GLuint Chunk::get_counter_faces() {
+  glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+  glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_bufferVisibleFaceCounter);
+  glGetBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), &m_visibleFaceCounter);
+  std::cout << "Nombre de faces visibles : " << m_visibleFaceCounter << std::endl;
+  return m_visibleFaceCounter;
+}
 
 Chunk::~Chunk() {
   if (m_buffer_blocktype != 0) {

@@ -25,16 +25,18 @@ void ChunkBuilder::build(Chunk *chunk) {
   Texture tex = Texture(noise.m_buffer, 256, 256);//TODO
   tex.bind(0);//TODO
   for (const auto &shader : m_shaders_pipeline) { // Référence constante, pas de copie
+      std::cout << "Using : " << shader->get_path() << std::endl;
     shader->use();
     shader->set_uniform("permTexture", 0);//TODO
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_buffer());
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_blocktype_buffer());
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, chunk->get_faces_buffer());
+    glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 2, chunk->get_buffer_counter_faces());
     shader->set_all_uniforms();
-    //glDispatchCompute(C::CHUNK_DEPTH / 8, C::CHUNK_HEIGHT / 8, C::CHUNK_DEPTH / 8);
-    glDispatchCompute(C::BLOCKS_PER_CHUNK / 1024, 1, 1);
     shader->stop();
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
   }
   tex.unbind();
+  chunk->get_counter_faces();
 }
 
 ChunkBuilder::~ChunkBuilder() {

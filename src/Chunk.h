@@ -19,18 +19,20 @@ namespace C =
 class Chunk {
 public:
   Chunk(int x, int z);
-  GLuint get_buffer();
-  GLuint get_vao();
+  GLuint get_blocktype_buffer();
+  GLuint get_faces_buffer();
+  GLuint get_vao_blocktype();
+  GLuint get_counter_faces();
+  void reset_counter_faces();
+  GLuint get_buffer_counter_faces();
+  GLuint get_vao_faces();
   ~Chunk();
-  // std::array<GLuint, C::BLOCKS_PER_CHUNK> m_data{};//TODO Private ? Mais du
-  // coup changer l'interaction avec ChunkBuilder std::array<face,
-  // C::BLOCKS_PER_CHUNK * 6> m_faces{};
 
 private:
   int m_x, m_z;
   GLuint m_buffer_blocktype, m_vao_blocktype; // SSBO et VAO reliés, 1 GLuint par bloc pour représenter son type
   GLuint m_buffer_faces, m_vao_faces; // SSBO et VAO reliés, faces visibles des blocs
-  GLuint visibleFaceCounter = 0;
+  GLuint m_visibleFaceCounter, m_bufferVisibleFaceCounter; // counter face visible + id buffer
 };
 
 #endif // CHUNK_H_

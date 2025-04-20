@@ -23,14 +23,50 @@
 
 namespace C = Constants;
 
-static inline void draw_chunk(Camera cam) {
+static inline void draw_chunk_faces(Camera cam) {
+  glm::mat4 mvp;
+  glm::vec4 light_pos = glm::vec4(3000.0, 2000.0, 2000.0, 1.0);
+  GameEngine &engine = GameEngine::getInstance();
+  ShaderManager &shader_manager = ShaderManager::getInstance();
+  World &world = World::getInstance();
+  Chunk *chunk = world.tryGetChunk(0, 0);
+
+  std::shared_ptr<Shader> shader = shader_manager.getShader("mapDrawFaces");
+  shader->use();
+  // TODO l'ordre des 4 lignes ci-dessous doit être garder sinon ça casse, ce
+  // qui n'est pas normal
+  Texture grass("../res/textures/grass.jpg"); // TODO avoir un Texture Manager
+  Texture water("../res/textures/water.jpg");
+  grass.bind(0);
+  water.bind(1);
+  shader->set_uniform("grass_tex", 0);
+  shader->set_uniform("water_tex", 1);
+  mvp = cam.get_proj() * cam.get_view();
+  glBindVertexArray(chunk->get_vao_faces()); // Associer VAO
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  shader->set_uniform("Lp", light_pos);
+  shader->set_uniform("MVP", mvp);
+  shader->set_uniform("view", cam.get_view());
+
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_faces_buffer());
+// Dessiner les instances
+glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, chunk->get_counter_faces());  // num_faces = nombre de faces dans ton SSBO
+
+  shader->stop();
+  glBindVertexArray(0);
+  glUseProgram(0);
+}
+
+static inline void draw_chunk_uint(Camera cam) {
   glm::vec4 light_pos = glm::vec4(300.0, 500.0, 200.0, 1.0);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
   World &world = World::getInstance();
   Chunk *chunk = world.tryGetChunk(0, 0);
 
-  std::shared_ptr<Shader> shader = shader_manager.getShader("mapDraw");
+  std::shared_ptr<Shader> shader = shader_manager.getShader("mapDrawUint");
   shader->use();
   // TODO l'ordre des 4 lignes ci-dessous doit être garder sinon ça casse, ce
   // qui n'est pas normal
@@ -41,7 +77,7 @@ static inline void draw_chunk(Camera cam) {
   shader->set_uniform("grass_tex", 0);
   shader->set_uniform("water_tex", 1);
   glm::mat4 mvp = cam.get_proj() * cam.get_view();
-  glBindVertexArray(chunk->get_vao()); // Associer VAO
+  glBindVertexArray(chunk->get_vao_blocktype()); // Associer VAO
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
@@ -49,14 +85,13 @@ static inline void draw_chunk(Camera cam) {
   shader->set_uniform("MVP", mvp);
   shader->set_uniform("view", cam.get_view());
 
-  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_buffer());
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_blocktype_buffer());
   glDrawArrays(GL_POINTS, 0, C::BLOCKS_PER_CHUNK); // 1 vertex par bloc
 
   shader->stop();
   glBindVertexArray(0);
   glUseProgram(0);
 }
-
 static inline void process_chunk(Chunk &chunk) {
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
@@ -76,6 +111,7 @@ static inline void init() {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  shader->set_num_groups(C::BLOCKS_PER_CHUNK/1024, 1, 1);
   shader->stop();
 
   // Compute Shader - Water Compute
@@ -85,6 +121,7 @@ static inline void init() {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  shader->set_num_groups(C::BLOCKS_PER_CHUNK/1024, 1, 1);
   shader->stop();
 
   // Compute Shader - Gen Vertices
@@ -94,12 +131,18 @@ static inline void init() {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
+  //shader->set_num_groups(16, 16, 1);
   shader->stop();
 
   // Map Draw Shader
-  shader_manager.loadShader("mapDraw", "../res/shaders/voxels.vert",
+  shader_manager.loadShader("mapDrawUint", "../res/shaders/voxels.vert",
                             "../res/shaders/voxels.frag",
                             "../res/shaders/voxels.geom");
+
+  // Map Draw Shader
+  shader_manager.loadShader("mapDrawFaces", "../res/shaders/faces.vert",
+                            "../res/shaders/faces.frag");
   // Cube Repère Shader
   shader_manager.loadShader("cubeRepere", "../res/shaders/cube_repere.vert",
                             "../res/shaders/cube_repere.frag");
@@ -129,7 +172,7 @@ static inline void draw(Camera cam) {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   draw_cube_repere(cam);
-  draw_chunk(cam);
+  draw_chunk_uint(cam);
 }
 
 static inline void camera_settings(Camera &cam, float current_time) {
