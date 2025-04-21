@@ -13,13 +13,15 @@ uniform vec4 Lp;  // Position de la lumière
 uniform mat4 view;
 
 void main(void) {
-  vec4 Lpv = view * Lp;
+  vec4 Lpv = Lp;
+  //vec4 Lpv = view * Lp;
   vec3 Ld = normalize(gsoModPos - Lpv).xyz;
-  float phongIL = clamp(dot(-Ld, fragNormal), 0.0, 1.0);
+  float phongIL = 0.0 + clamp(dot(-Ld, fragNormal), 0.0, 1.0);
   //float phongIL = 1.0;
 
     if(fragBlockType == 1){
-        vec4 texColor = texture(grass_tex, fragTexCoord);
+        vec4 texColor = vec4(0.15, 0.35, 0.1, 1.0);
+        //vec4 texColor = texture(grass_tex, fragTexCoord);
         fragColor = vec4((phongIL * texColor.rgb), 1.0);
     }
     else if(fragBlockType == 2){

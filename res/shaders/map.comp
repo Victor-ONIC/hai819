@@ -78,7 +78,7 @@ void main()
     float zoom2D = 0.5;
     vec3 ind3D = index1DTo3D(gid, map_width, map_height, map_depth);
     vec2 indxz = ind3D.xz;
-    float coef_pow2D = 1.25;
+    float coef_pow2D = 1.45;
     int bool_pow2D = 1;
     float ground_height = 0.0;
 
