@@ -12,13 +12,30 @@
 namespace Constants {
 constexpr int WINDOW_WIDTH = 1920;
 constexpr int WINDOW_HEIGHT = 1080;
-constexpr int CHUNK_WIDTH = 256;
-constexpr int CHUNK_HEIGHT = 64;
-constexpr int CHUNK_DEPTH = 256;
+//constexpr int CHUNK_WIDTH = 256;
+//constexpr int CHUNK_HEIGHT = 64;
+//constexpr int CHUNK_DEPTH = 256;
+
+//constexpr int CHUNK_WIDTH = 16;
+//constexpr int CHUNK_HEIGHT = 256;
+//constexpr int CHUNK_DEPTH = 16;
+
+constexpr int CHUNK_WIDTH = 128;
+constexpr int CHUNK_HEIGHT = 128;
+constexpr int CHUNK_DEPTH = 128;
+
+//constexpr int CHUNK_WIDTH = 256;
+//constexpr int CHUNK_HEIGHT = 256;
+//constexpr int CHUNK_DEPTH = 256;
+
+//constexpr int CHUNK_WIDTH = 128;
+//constexpr int CHUNK_HEIGHT = 64;
+//constexpr int CHUNK_DEPTH = 128;
 
 //constexpr int CHUNK_WIDTH = 64;
 //constexpr int CHUNK_HEIGHT = 64;
 //constexpr int CHUNK_DEPTH = 64;
+
 constexpr uint64_t BLOCKS_PER_CHUNK = CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH;
 
 using ValueType = std::variant<
@@ -43,14 +60,24 @@ using ValueType = std::variant<
 using UniformMap = std::unordered_map<std::string, ValueType>;
 } // namespace Constants
 
-struct alignas(16) face {
+struct face {
+    uint32_t blocktype;            // 4 octets
+    float _padding[3];             // 12 octets
     glm::vec4 vert[4];             // 64 octets
     glm::vec4 normal;              // 16 octets
-    uint32_t blocktype;            // 4 octets
-    uint32_t _pad0[3];             // 12 octets   -> PADDING pour aligner à 16 octets
-    glm::vec2 coord_tex;           // 8 octets
-    glm::vec2 _pad1;               // 8 octets    -> PADDING pour aligner à 16 octets
-                                   // -> 64 + 16 + 4 + 12 + 8 + 4 == 112 octets
+    glm::vec2 coord_tex[4];        // 32 octets
+                                   // -> 64 + 16 + 4 + 12 + 8 + 4 == 128 octets
 };
+
+/*
+struct face{
+    uint blockype;        // 4 octets
+    vec4 vert[4];         // 64 octets
+    vec4 normal;          // 16 octets
+    vec2 coord_tex[4];    // 32 octets
+    float _padding[3];    // 12 octets
+                          // 4 + 64 + 16 + 32 + 12 == 128 octets
+};
+*/
 
 #endif // CONSTANTS_HPP

@@ -23,6 +23,8 @@ public:
   GLuint get_faces_buffer();
   GLuint get_vao_blocktype();
   GLuint get_counter_faces();
+  void print_counter_faces();
+  void print_faces();
   void reset_counter_faces();
   GLuint get_buffer_counter_faces();
   GLuint get_vao_faces();

@@ -25,7 +25,7 @@ namespace C = Constants;
 
 static inline void draw_chunk_faces(Camera cam) {
   glm::mat4 mvp;
-  glm::vec4 light_pos = glm::vec4(3000.0, 2000.0, 2000.0, 1.0);
+  glm::vec4 light_pos = glm::vec4(3000.0, 20000.0, 2000.0, 1.0);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
   World &world = World::getInstance();
@@ -51,8 +51,10 @@ static inline void draw_chunk_faces(Camera cam) {
   shader->set_uniform("view", cam.get_view());
 
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_faces_buffer());
-// Dessiner les instances
-glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, chunk->get_counter_faces());  // num_faces = nombre de faces dans ton SSBO
+  // Dessiner les instances
+  glDrawArraysInstanced(GL_TRIANGLES, 0, 6, chunk->get_counter_faces());
+  //glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 36);
+
 
   shader->stop();
   glBindVertexArray(0);
@@ -132,7 +134,6 @@ static inline void init() {
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
   shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
-  //shader->set_num_groups(16, 16, 1);
   shader->stop();
 
   // Map Draw Shader
@@ -167,21 +168,23 @@ static inline void draw_cube_repere(Camera cam) {
 }
 
 static inline void draw(Camera cam) {
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   draw_cube_repere(cam);
-  draw_chunk_uint(cam);
+  //draw_chunk_uint(cam);
+  draw_chunk_faces(cam);
 }
 
 static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
-  GLfloat dist = 150.0;
+  GLfloat dist = 120.0;
   GLfloat vit = 0.1;
-  cam.update(glm::vec3(1.5 * dist * sin(vit * current_time), dist * 0.3,
+  cam.update(glm::vec3(1.5 * dist * sin(vit * current_time), 80.0 + dist * 0.3,
                        2.5 * dist * cos(vit * current_time)),
-             glm::vec3(0.8 * dist, 0.0 * dist, 0.7 * dist),
+             glm::vec3((GLfloat)C::CHUNK_WIDTH/2, 0.0 * dist, (GLfloat)C::CHUNK_DEPTH/2),
              glm::vec3(0.0, 1.0, 0.0));
 }
 
@@ -214,7 +217,7 @@ int main() {
 
   init();
   Camera cam =
-      Camera(glm::vec3(50, 20, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+      Camera(glm::vec3(100, 100, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
   auto lastTime = std::chrono::high_resolution_clock::now();
   while (glfwGetKey(window, GLFW_KEY_L) != GLFW_PRESS &&
          glfwWindowShouldClose(window) == 0) {

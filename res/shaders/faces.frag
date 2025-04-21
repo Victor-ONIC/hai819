@@ -3,6 +3,7 @@
 in flat uint fragBlockType;
 in vec2 fragTexCoord;
 in vec3 fragNormal;
+in vec4 gsoModPos;
 
 out vec4 fragColor;
 
@@ -12,17 +13,18 @@ uniform vec4 Lp;  // Position de la lumière
 uniform mat4 view;
 
 void main(void) {
-    vec3 Lpv = view * Lp;
-    vec3 Ld = normalize(Lpv.xyz - fragTexCoord);  // Direction de la lumière
-    float phongIL = max(dot(fragNormal, -Ld), 0.0);  // Phong lighting
+  vec4 Lpv = view * Lp;
+  vec3 Ld = normalize(gsoModPos - Lpv).xyz;
+  float phongIL = clamp(dot(-Ld, fragNormal), 0.0, 1.0);
+  //float phongIL = 1.0;
 
-    // Différentes textures basées sur le type de bloc
-    if (fragBlockType == 1) {
+    if(fragBlockType == 1){
         vec4 texColor = texture(grass_tex, fragTexCoord);
-        fragColor = vec4(phongIL * texColor.rgb, 1.0);
-    } else if (fragBlockType == 2) {
-        vec4 texColor = texture(water_tex, fragTexCoord);
-        fragColor = vec4(0.4 * texColor.rgb, 0.12);
+        fragColor = vec4((phongIL * texColor.rgb), 1.0);
     }
-    // Ajoutez d'autres types de blocs selon les besoins
+    else if(fragBlockType == 2){
+        vec4 texColor = texture(water_tex, fragTexCoord);
+        //fragColor = vec4((phongIL * texColor.rgb), 1.0);
+        fragColor = vec4((0.4 * texColor.rgb), 0.70);
+    }
 }

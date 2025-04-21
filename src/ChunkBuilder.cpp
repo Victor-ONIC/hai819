@@ -37,6 +37,8 @@ void ChunkBuilder::build(Chunk *chunk) {
   }
   tex.unbind();
   chunk->get_counter_faces();
+  chunk->print_counter_faces();
+  chunk->print_faces();
 }
 
 ChunkBuilder::~ChunkBuilder() {
