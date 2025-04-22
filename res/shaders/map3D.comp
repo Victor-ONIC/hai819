@@ -118,8 +118,8 @@ uint compute_2D(float noise, float ground_height, float ind3D_y){
     return 0;
 }
 
-uint compute_3D(uint type, float noise){
-    if((noise > 0.4) && (type == 1 || type == 3)) return 0;
+uint compute_3D(vec3 ind3D, uint type, float noise){
+    if(((noise * (1.0 - ind3D.y)) > 0.3) && (type == 1 || type == 3)) return 0;
     return type;
 }
 
@@ -149,7 +149,7 @@ void main()
     //data[gid] = 0;
     //data[gid] = compute_2D(noise_2D, ground_height, ind3D.y);
     //data[gid] = compute_3D(data[gid], noise_3D);
-    data[id1D] = compute_3D(data[id1D], noise_3D);
+    data[id1D] = compute_3D(ind3D, data[id1D], noise_3D);
     //if(noise_3D > 0.5) data[gid] = 1;
     //data[gid] = compute_3D(noise_3D, max_empty);
 }

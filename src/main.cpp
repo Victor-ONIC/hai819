@@ -190,11 +190,12 @@ static inline void init() {
   world.initChunk(0, 0);
   chunkbuilder.build(world.tryGetChunk(0, 0));
 
+  /*
   world.initChunk(0, 1);
   chunkbuilder.build(world.tryGetChunk(0, 1));
 
-  world.initChunk(0, 2);
-  chunkbuilder.build(world.tryGetChunk(0, 2));
+  world.initChunk(1, 1);
+  chunkbuilder.build(world.tryGetChunk(1, 1));
 
   world.initChunk(1, 0);
   chunkbuilder.build(world.tryGetChunk(1, 0));
@@ -205,7 +206,6 @@ static inline void init() {
   world.initChunk(1, 2);
   chunkbuilder.build(world.tryGetChunk(1, 2));
 
-  /*
   world.initChunk(2, 0);
   chunkbuilder.build(world.tryGetChunk(2, 0));
 
@@ -243,8 +243,8 @@ static inline void draw(Camera cam) {
 
 static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
-  GLfloat dist = 70.0;
-  GLfloat vit = 0.1;
+  GLfloat dist = 290.0;
+  GLfloat vit = 0.4;
   /*
   cam.update(
             glm::vec3(-80.0, 250.0, -80.0),
@@ -252,7 +252,7 @@ static inline void camera_settings(Camera &cam, float current_time) {
             glm::vec3(0.0, 1.0, 0.0));
             */
   cam.update(glm::vec3(1.5 * dist * sin(vit * current_time), 150.0,
-                       1.5 * dist * cos(vit * current_time)),
+                       1.2 * dist * cos(vit * current_time)),
              glm::vec3((GLfloat)C::CHUNK_WIDTH/2, 50.0, (GLfloat)C::CHUNK_DEPTH/2),
              glm::vec3(0.0, 1.0, 0.0));
 }
