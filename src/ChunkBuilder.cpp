@@ -7,8 +7,9 @@
 #include "Texture.h"
 
 ChunkBuilder::ChunkBuilder() {
-    addShader("mapCompute");
+    addShader("mapComputeHeight");
     addShader("waterCompute");
+    addShader("mapCompute3D");
     addShader("genVertices");
 }
 

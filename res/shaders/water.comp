@@ -91,6 +91,6 @@ void main()
     //n = 1.0 - n;
     //data[gid] = 0;
     //data[gid] = compute_2D(noise_2D, ground_height, ind3D.y);
-    if(data[gid] == 0 && ind3D.y < 0.10) data[gid] = 2;
+    if(data[gid] == 0 && ind3D.y < 0.6) data[gid] = 2;
     //data[gid] = 1;
 }

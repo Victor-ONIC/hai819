@@ -106,9 +106,19 @@ static inline void init() {
   ShaderManager &shader_manager = ShaderManager::getInstance();
   std::shared_ptr<Shader> shader;
 
-  // Compute Shader - Map Compute
-  shader_manager.loadShader("mapCompute", "../res/shaders/map.comp");
-  shader = shader_manager.getShader("mapCompute");
+  // Compute Shader - Map Compute Height
+  shader_manager.loadShader("mapComputeHeight", "../res/shaders/map.comp");
+  shader = shader_manager.getShader("mapComputeHeight");
+  shader->use();
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  shader->set_num_groups(C::BLOCKS_PER_CHUNK/1024, 1, 1);
+  shader->stop();
+
+  // Compute Shader - Map Compute 3D
+  shader_manager.loadShader("mapCompute3D", "../res/shaders/map3D.comp");
+  shader = shader_manager.getShader("mapCompute3D");
   shader->use();
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
@@ -180,11 +190,11 @@ static inline void draw(Camera cam) {
 
 static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
-  GLfloat dist = 470.0;
+  GLfloat dist = 670.0;
   GLfloat vit = 0.5;
-  cam.update(glm::vec3(1.5 * dist * sin(vit * current_time), 80.0 + dist * 0.3,
-                       2.5 * dist * cos(vit * current_time)),
-             glm::vec3((GLfloat)C::CHUNK_WIDTH/2, 0.0 * dist, (GLfloat)C::CHUNK_DEPTH/2),
+  cam.update(glm::vec3(1.5 * dist * sin(vit * current_time), 400.0 + dist * 0.3,
+                       1.5 * dist * cos(vit * current_time)),
+             glm::vec3((GLfloat)C::CHUNK_WIDTH/2, 100.0 + 0.0 * dist, (GLfloat)C::CHUNK_DEPTH/2),
              glm::vec3(0.0, 1.0, 0.0));
 }
 

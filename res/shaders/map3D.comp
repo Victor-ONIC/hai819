@@ -109,9 +109,9 @@ uint compute_2D(float noise, float ground_height, float ind3D_y){
     return 0;
 }
 
-uint compute_3D(float noise, float max_empty){
-    if(300.0 * noise < (max_empty * 0.1)) return 0;
-    return 1;
+uint compute_3D(uint type, float noise){
+    if((noise > 0.4) && type == 1) return 0;
+    return type;
 }
 
 void main()
@@ -120,7 +120,7 @@ void main()
     uint gid = gl_GlobalInvocationID.x;
     float noise_2D = 0.0, noise_3D = 0.0, A = 1.0, mf = 1.0;
     vec3 offset = vec3(1.0);
-    float zoom2D = 1.5, zoom3D = 0.7;
+    float zoom2D = 1.5, zoom3D = 4.7;
     vec3 ind3D = index1DTo3D(gid, map_width, map_height, map_depth);
     vec2 indxz = ind3D.xz;
     float coef_pow2D = 1.85, coef_pow3D = 6.85;
@@ -135,9 +135,9 @@ void main()
         mf = mf * 2.0;
     }
     //n = 1.0 - n;
-    data[gid] = 0;
-    data[gid] = compute_2D(noise_2D, ground_height, ind3D.y);
-    //data[gid] = compute_3D(noise_3D, max_empty);
+    //data[gid] = 0;
+    //data[gid] = compute_2D(noise_2D, ground_height, ind3D.y);
+    data[gid] = compute_3D(data[gid], noise_3D);
     //if(noise_3D > 0.5) data[gid] = 1;
     //data[gid] = compute_3D(noise_3D, max_empty);
 }

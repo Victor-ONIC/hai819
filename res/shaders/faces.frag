@@ -25,8 +25,9 @@ void main(void) {
         fragColor = vec4((phongIL * texColor.rgb), 1.0);
     }
     else if(fragBlockType == 2){
-        vec4 texColor = texture(water_tex, fragTexCoord);
+        vec4 texColor = vec4(0.1, 0.15, 0.55, 1.0);
+        //vec4 texColor = texture(water_tex, fragTexCoord);
         //fragColor = vec4((phongIL * texColor.rgb), 1.0);
-        fragColor = vec4((0.4 * texColor.rgb), 0.70);
+        fragColor = vec4((0.6 * texColor.rgb), 0.70);
     }
 }
