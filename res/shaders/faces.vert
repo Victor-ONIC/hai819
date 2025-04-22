@@ -16,6 +16,7 @@ uniform mat4 MVP;
 uniform mat4 view;
 uniform sampler2D grass_tex;
 uniform sampler2D water_tex;
+uniform sampler2D cobble_tex;
 
 flat out uint fragBlockType;
 out vec2 fragTexCoord;
@@ -33,7 +34,7 @@ void main()
 
     // Calcul du sommet courant et de la texcoord associée
     vec4 pos = verts[indices[gl_VertexID]];
-    pos = vec4(pos.x, pos.y, pos.z, pos.w);
+    //pos = vec4(pos.x, pos.y, pos.z, pos.w);
     vec2 texCoord = coords_tex[indices[gl_VertexID]]; // Renommé pour éviter la confusion
 
     // Projection et view

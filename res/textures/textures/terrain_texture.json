@@ -1,0 +1,344 @@
+{
+  "resource_pack_name": "vanilla",
+  "texture_name": "atlas.terrain",
+  "padding": 8,
+  "num_mip_levels": 4,
+  "texture_data": {
+    "poppy": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_rose",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/poppy_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/poppy_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/poppy_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "blue_orchid": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_blue_orchid",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/blue_orchid_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/blue_orchid_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/blue_orchid_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    }, 
+    "allium": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_allium",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/allium_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/allium_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/allium_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "azure_bluet": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_houstonia",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/azure_bluet_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/azure_bluet_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/azure_bluet_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "red_tulip": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_tulip_red",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/red_tulip_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/red_tulip_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/red_tulip_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "orange_tulip": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_tulip_orange",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/orange_tulip_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/orange_tulip_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/orange_tulip_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "white_tulip": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_tulip_white",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/white_tulip_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/white_tulip_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/white_tulip_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "pink_tulip": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_tulip_pink",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/pink_tulip_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/pink_tulip_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/pink_tulip_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "oxeye_daisy": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_oxeye_daisy",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/oxeye_daisy_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/oxeye_daisy_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/oxeye_daisy_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "cornflower": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_cornflower",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/cornflower_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/cornflower_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/cornflower_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "lily_of_the_valley": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_lily_of_the_valley",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/lily_of_the_valley_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/lily_of_the_valley_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/lily_of_the_valley_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "yellow_flower": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_dandelion",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/dandelion_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/dandelion_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/dandelion_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "torchflower": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/torchflower",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/torchflower_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/torchflower_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/torchflower_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    "wither_rose": {
+         "textures" : [
+        {
+          "variations": [
+            {
+              "path": "textures/blocks/flower_wither_rose",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/wither_rose_two",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/wither_rose_three",
+              "weight": 1
+            },
+            {
+              "path": "textures/blocks/wither_rose_four",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

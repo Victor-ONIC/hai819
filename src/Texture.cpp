@@ -34,6 +34,9 @@ Texture::Texture(const std::string& path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //
+    // Génère les mipmaps après avoir uploadé la texture
+    glGenerateMipmap(GL_TEXTURE_2D);
 
     // 4. Injecter les données de cette texture.
     stbi_set_flip_vertically_on_load(true);

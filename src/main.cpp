@@ -37,10 +37,13 @@ static inline void draw_chunk_faces(Camera cam) {
   // qui n'est pas normal
   Texture grass("../res/textures/grass.jpg"); // TODO avoir un Texture Manager
   Texture water("../res/textures/water.jpg");
+  Texture cobble("../res/textures/cobble.jpg");
   grass.bind(0);
   water.bind(1);
+  cobble.bind(2);
   shader->set_uniform("grass_tex", 0);
   shader->set_uniform("water_tex", 1);
+  shader->set_uniform("cobble_tex", 2);
   mvp = cam.get_proj() * cam.get_view();
   glBindVertexArray(chunk->get_vao_faces()); // Associer VAO
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
@@ -74,10 +77,13 @@ static inline void draw_chunk_uint(Camera cam) {
   // qui n'est pas normal
   Texture grass("../res/textures/grass.jpg"); // TODO avoir un Texture Manager
   Texture water("../res/textures/water.jpg");
+  Texture cobble("../res/textures/cobble.jpg");
   grass.bind(0);
   water.bind(1);
+  cobble.bind(2);
   shader->set_uniform("grass_tex", 0);
   shader->set_uniform("water_tex", 1);
+  shader->set_uniform("cobble_tex", 2);
   glm::mat4 mvp = cam.get_proj() * cam.get_view();
   glBindVertexArray(chunk->get_vao_blocktype()); // Associer VAO
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
@@ -113,7 +119,7 @@ static inline void init() {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  shader->set_num_groups(C::BLOCKS_PER_CHUNK/1024, 1, 1);
+  shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
   shader->stop();
 
   // Compute Shader - Map Compute 3D
@@ -123,7 +129,17 @@ static inline void init() {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  shader->set_num_groups(C::BLOCKS_PER_CHUNK/1024, 1, 1);
+  shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
+  shader->stop();
+  //
+  // Compute Shader - Grass Compute
+  shader_manager.loadShader("grassCompute", "../res/shaders/grass.comp");
+  shader = shader_manager.getShader("grassCompute");
+  shader->use();
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
   shader->stop();
 
   // Compute Shader - Water Compute
@@ -133,7 +149,8 @@ static inline void init() {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  shader->set_num_groups(C::BLOCKS_PER_CHUNK/1024, 1, 1);
+  //shader->set_num_groups(C::BLOCKS_PER_CHUNK/1024, 1, 1);
+  shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
   shader->stop();
 
   // Compute Shader - Gen Vertices
@@ -146,12 +163,12 @@ static inline void init() {
   shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
   shader->stop();
 
-  // Map Draw Shader
+  // Uint Map Draw Shader
   shader_manager.loadShader("mapDrawUint", "../res/shaders/voxels.vert",
                             "../res/shaders/voxels.frag",
                             "../res/shaders/voxels.geom");
 
-  // Map Draw Shader
+  // Faces Map Draw Shader
   shader_manager.loadShader("mapDrawFaces", "../res/shaders/faces.vert",
                             "../res/shaders/faces.frag");
   // Cube Repère Shader

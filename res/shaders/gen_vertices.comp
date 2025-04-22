@@ -63,7 +63,6 @@ void emitFace(int f, vec3 pos, uint type) {
     newFace.blockype = type; // À adapter si tu veux utiliser `type` du voxel
     for (int i = 0; i < 4; ++i) {
         newFace.vert[i] = vec4(pos + faceVerts[f][i], 1.0);
-        newFace.vert[i] = vec4(newFace.vert[i].x, newFace.vert[i].z, newFace.vert[i].y, newFace.vert[i].w);
     }
     newFace.normal = vec4(offset[f], 0.0); // normale de la face
     newFace.coord_tex[0] = vec2(0.0, 0.0);
@@ -90,7 +89,6 @@ void main() {
         ivec3 neighbor = id + ivec3(offset[f]);
         uint neighbor_type = getBlock(neighbor.x, neighbor.y, neighbor.z);
         if (neighbor_type == 0 || (neighbor_type != type && type == 1)) {
-        //if (neighbor_type == 0 || neighbor_type == 2) {
             emitFace(f, vec3(id), type);
         }
     }

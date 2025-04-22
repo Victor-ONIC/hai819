@@ -8,6 +8,7 @@
 
 ChunkBuilder::ChunkBuilder() {
     addShader("mapComputeHeight");
+    addShader("grassCompute");
     addShader("waterCompute");
     addShader("mapCompute3D");
     addShader("genVertices");
@@ -39,7 +40,7 @@ void ChunkBuilder::build(Chunk *chunk) {
   tex.unbind();
   chunk->get_counter_faces();
   chunk->print_counter_faces();
-  chunk->print_faces();
+  //chunk->print_faces();
   chunk->genLowMemBuffer();
 }
 

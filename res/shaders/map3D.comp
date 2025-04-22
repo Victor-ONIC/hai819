@@ -2,7 +2,7 @@
 
 #define M_PI 3.1415926535897932384626433832795
 
-layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
 layout(std430, binding = 0) buffer BlockData {
     uint data[]; // Le tableau de données
@@ -96,6 +96,11 @@ float noise(vec3 P, float coef_pow, int bool_pow){
   return n_xyz;
 }
 
+// Fonction pour convertir (x, y, z) en un index 1D
+uint index3DTo1D(uint x, uint y, uint z, uint width, uint height) {
+    return x + y * width + z * (width * height);
+}
+
 // Fonction pour convertir un index 1D en coordonnées 3D (x, y, z)
 vec3 index1DTo3D(uint index, uint width, uint height, uint depth) {
     uint y = index / (width * depth);
@@ -104,24 +109,30 @@ vec3 index1DTo3D(uint index, uint width, uint height, uint depth) {
     return vec3(float(x) / width, float(y) / height, float(z) / depth);
 }
 
+vec3 normalize_id(ivec3 id, uint width, uint height, uint depth){
+    return vec3(float(id.x) / float(width), float(id.y) / float(height), float(id.z) / float(depth));
+}
+
 uint compute_2D(float noise, float ground_height, float ind3D_y){
     if((noise / 4.0) + ground_height > ind3D_y) return 1;
     return 0;
 }
 
 uint compute_3D(uint type, float noise){
-    if((noise > 0.4) && type == 1) return 0;
+    if((noise > 0.4) && (type == 1 || type == 3)) return 0;
     return type;
 }
 
 void main()
 {
+    ivec3 id = ivec3(gl_GlobalInvocationID.xyz);
+    uint id1D = index3DTo1D(id.x, id.y, id.z, map_width, map_height);
     vec3 pos;
     uint gid = gl_GlobalInvocationID.x;
     float noise_2D = 0.0, noise_3D = 0.0, A = 1.0, mf = 1.0;
     vec3 offset = vec3(1.0);
     float zoom2D = 1.5, zoom3D = 4.7;
-    vec3 ind3D = index1DTo3D(gid, map_width, map_height, map_depth);
+    vec3 ind3D = normalize_id(id, map_width, map_height, map_depth);
     vec2 indxz = ind3D.xz;
     float coef_pow2D = 1.85, coef_pow3D = 6.85;
     int bool_pow2D = 0, bool_pow3D = 0;
@@ -137,7 +148,8 @@ void main()
     //n = 1.0 - n;
     //data[gid] = 0;
     //data[gid] = compute_2D(noise_2D, ground_height, ind3D.y);
-    data[gid] = compute_3D(data[gid], noise_3D);
+    //data[gid] = compute_3D(data[gid], noise_3D);
+    data[id1D] = compute_3D(data[id1D], noise_3D);
     //if(noise_3D > 0.5) data[gid] = 1;
     //data[gid] = compute_3D(noise_3D, max_empty);
 }
