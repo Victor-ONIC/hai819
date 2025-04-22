@@ -11,12 +11,14 @@ layout (location = 7) in vec2 coord_tex1;
 layout (location = 8) in vec2 coord_tex2;
 layout (location = 9) in vec2 coord_tex3;
 
-uniform vec4 Lp;
-uniform mat4 MVP;
-uniform mat4 view;
 uniform sampler2D grass_tex;
 uniform sampler2D water_tex;
 uniform sampler2D cobble_tex;
+uniform vec4 Lp;
+uniform mat4 MVP;
+uniform mat4 view;
+uniform float offsetx;
+uniform float offsetz;
 
 flat out uint fragBlockType;
 out vec2 fragTexCoord;
@@ -36,6 +38,13 @@ void main()
     vec4 pos = verts[indices[gl_VertexID]];
     //pos = vec4(pos.x, pos.y, pos.z, pos.w);
     vec2 texCoord = coords_tex[indices[gl_VertexID]]; // Renommé pour éviter la confusion
+
+    // Offset du Chunk
+    pos.x = pos.x + offsetx;
+    pos.z = pos.z + offsetz;
+
+    //pos.x = pos.x + 512;
+    //pos.z = pos.z + 512;
 
     // Projection et view
     gl_Position = MVP * pos;

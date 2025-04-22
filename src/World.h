@@ -17,13 +17,13 @@ public:
   void initChunk(int x, int z);
   Chunk * tryGetChunk(int x, int z); // TODO modifier pour ne pas avoir à gérer un nullptr
   bool hasChunk(int x, int z) const;
+  std::unordered_map<ChunkKey, std::unique_ptr<Chunk>> m_chunks;
 
 private:
   World();
   ~World();
   World(const World &) = delete;
   World &operator=(const World &) = delete;
-  std::unordered_map<ChunkKey, std::unique_ptr<Chunk>> m_chunks;
 };
 
 #endif // WORLD_H

@@ -23,13 +23,12 @@
 
 namespace C = Constants;
 
-static inline void draw_chunk_faces(Camera cam) {
+
+static inline void draw_chunk_faces(Chunk * chunk, Camera cam) {
   glm::mat4 mvp;
-  glm::vec4 light_pos = glm::vec4(50000.0, 50000.0, 10000.0, 1.0);
+  glm::vec4 light_pos = glm::vec4(0.0, 50000.0, 10000.0, 1.0);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
-  World &world = World::getInstance();
-  Chunk *chunk = world.tryGetChunk(0, 0);
 
   std::shared_ptr<Shader> shader = shader_manager.getShader("mapDrawFaces");
   shader->use();
@@ -52,6 +51,8 @@ static inline void draw_chunk_faces(Camera cam) {
   shader->set_uniform("Lp", light_pos);
   shader->set_uniform("MVP", mvp);
   shader->set_uniform("view", cam.get_view());
+  shader->set_uniform("offsetx", float(chunk->get_xz()[0]));
+  shader->set_uniform("offsetz", float(chunk->get_xz()[1]));
 
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_faces_buffer());
   // Dessiner les instances
@@ -62,6 +63,15 @@ static inline void draw_chunk_faces(Camera cam) {
   shader->stop();
   glBindVertexArray(0);
   glUseProgram(0);
+}
+
+static inline void draw_all_chunk(Camera cam){
+  World &world = World::getInstance();
+  for (auto &[key, chunkPtr] : world.m_chunks) {
+    if (chunkPtr) {
+      draw_chunk_faces(chunkPtr.get(), cam);
+    }
+  }
 }
 
 static inline void draw_chunk_uint(Camera cam) {
@@ -176,10 +186,35 @@ static inline void init() {
                             "../res/shaders/cube_repere.frag");
 
   World &world = World::getInstance();
-  ChunkBuilder chunkbuilder =
-      ChunkBuilder(); // TODO Singleton Pattern ou un Manager
+  ChunkBuilder chunkbuilder = ChunkBuilder(); // TODO Singleton Pattern ou un Manager
   world.initChunk(0, 0);
   chunkbuilder.build(world.tryGetChunk(0, 0));
+
+  world.initChunk(0, 1);
+  chunkbuilder.build(world.tryGetChunk(0, 1));
+
+  world.initChunk(0, 2);
+  chunkbuilder.build(world.tryGetChunk(0, 2));
+
+  world.initChunk(1, 0);
+  chunkbuilder.build(world.tryGetChunk(1, 0));
+
+  world.initChunk(1, 1);
+  chunkbuilder.build(world.tryGetChunk(1, 1));
+
+  world.initChunk(1, 2);
+  chunkbuilder.build(world.tryGetChunk(1, 2));
+
+  /*
+  world.initChunk(2, 0);
+  chunkbuilder.build(world.tryGetChunk(2, 0));
+
+  world.initChunk(2, 1);
+  chunkbuilder.build(world.tryGetChunk(2, 1));
+
+  world.initChunk(2, 2);
+  chunkbuilder.build(world.tryGetChunk(2, 2));
+  */
   glEnable(GL_DEPTH_TEST);
 }
 
@@ -202,20 +237,28 @@ static inline void draw(Camera cam) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   draw_cube_repere(cam);
   //draw_chunk_uint(cam);
-  draw_chunk_faces(cam);
+  //draw_chunk_faces(cam);
+  draw_all_chunk(cam);
 }
 
 static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
-  GLfloat dist = 670.0;
-  GLfloat vit = 0.5;
-  cam.update(glm::vec3(1.5 * dist * sin(vit * current_time), 400.0 + dist * 0.3,
+  GLfloat dist = 70.0;
+  GLfloat vit = 0.1;
+  /*
+  cam.update(
+            glm::vec3(-80.0, 250.0, -80.0),
+            glm::vec3((GLfloat)C::CHUNK_WIDTH, 150.0, (GLfloat)C::CHUNK_DEPTH),
+            glm::vec3(0.0, 1.0, 0.0));
+            */
+  cam.update(glm::vec3(1.5 * dist * sin(vit * current_time), 150.0,
                        1.5 * dist * cos(vit * current_time)),
-             glm::vec3((GLfloat)C::CHUNK_WIDTH/2, 100.0 + 0.0 * dist, (GLfloat)C::CHUNK_DEPTH/2),
+             glm::vec3((GLfloat)C::CHUNK_WIDTH/2, 50.0, (GLfloat)C::CHUNK_DEPTH/2),
              glm::vec3(0.0, 1.0, 0.0));
 }
 
 int main() {
+  srand(time(NULL));
   // GLFW
   if (glfwInit() != GLFW_TRUE) {
     return -1;

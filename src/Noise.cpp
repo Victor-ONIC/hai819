@@ -20,7 +20,7 @@ Noise::Noise(size_t height)
   uint8_t v;
   uint8_t perm[256];
 
-  srand(time(NULL));
+  //srand(time(NULL));
 
   for(int i=0 ; i<256 ; ++i){
     perm[i] = rand() % 256;

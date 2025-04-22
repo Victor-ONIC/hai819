@@ -7,8 +7,8 @@
 
 Chunk::Chunk(int x, int z) {
   //   Indices du chunk
-  m_x = x;
-  m_z = z;
+  m_xz[0] = x * C::CHUNK_WIDTH;
+  m_xz[1] = z * C::CHUNK_DEPTH;
 
   // Counter face atomic set upGLuint atomicCounterBuffer;
   GLuint zero = 0;
@@ -42,12 +42,13 @@ Chunk::Chunk(int x, int z) {
   glGenBuffers(1, &m_tmp_buffer_faces);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_tmp_buffer_faces);
   // 32 en dur -> est ce qu'on peut trouver une formule pour connaitre le pire cas de faces visibles ?
-  glBufferData(GL_SHADER_STORAGE_BUFFER, C::BLOCKS_PER_CHUNK / 32 * sizeof(face),
+  glBufferData(GL_SHADER_STORAGE_BUFFER, C::BLOCKS_PER_CHUNK / 8 * sizeof(face),
                nullptr, GL_DYNAMIC_DRAW);
 
 
 }
 
+glm::ivec2 Chunk::get_xz(){ return m_xz; }
 GLuint Chunk::get_blocktype_buffer() { return m_buffer_blocktype; }
 GLuint Chunk::get_faces_buffer() { return m_tmp_buffer_faces; }
 GLuint Chunk::get_buffer_counter_faces() { return m_bufferVisibleFaceCounter; }

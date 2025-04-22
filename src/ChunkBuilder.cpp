@@ -9,8 +9,8 @@
 ChunkBuilder::ChunkBuilder() {
     addShader("mapComputeHeight");
     addShader("grassCompute");
-    addShader("waterCompute");
-    addShader("mapCompute3D");
+    //addShader("waterCompute");
+    //addShader("mapCompute3D");
     addShader("genVertices");
 }
 
