@@ -25,7 +25,7 @@ namespace C = Constants;
 
 static inline void draw_chunk_faces(Camera cam) {
   glm::mat4 mvp;
-  glm::vec4 light_pos = glm::vec4(5000.0, 5000.0, 30000.0, 1.0);
+  glm::vec4 light_pos = glm::vec4(50000.0, 50000.0, 10000.0, 1.0);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
   World &world = World::getInstance();
@@ -180,8 +180,8 @@ static inline void draw(Camera cam) {
 
 static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
-  GLfloat dist = 170.0;
-  GLfloat vit = 0.9;
+  GLfloat dist = 470.0;
+  GLfloat vit = 0.5;
   cam.update(glm::vec3(1.5 * dist * sin(vit * current_time), 80.0 + dist * 0.3,
                        2.5 * dist * cos(vit * current_time)),
              glm::vec3((GLfloat)C::CHUNK_WIDTH/2, 0.0 * dist, (GLfloat)C::CHUNK_DEPTH/2),

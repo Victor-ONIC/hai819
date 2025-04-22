@@ -39,6 +39,7 @@ void ChunkBuilder::build(Chunk *chunk) {
   chunk->get_counter_faces();
   chunk->print_counter_faces();
   chunk->print_faces();
+  chunk->genLowMemBuffer();
 }
 
 ChunkBuilder::~ChunkBuilder() {

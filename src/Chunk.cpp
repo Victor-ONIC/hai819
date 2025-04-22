@@ -6,13 +6,12 @@
 #include "Texture.h"
 
 Chunk::Chunk(int x, int z) {
-  // std::fill(m_data.begin(), m_data.end(), 0);
   //   Indices du chunk
   m_x = x;
   m_z = z;
 
   // Counter face atomic set upGLuint atomicCounterBuffer;
-    GLuint zero = 0;
+  GLuint zero = 0;
   m_visibleFaceCounter = 0;
   glGenBuffers(1, &m_bufferVisibleFaceCounter);
   glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_bufferVisibleFaceCounter);
@@ -40,16 +39,78 @@ Chunk::Chunk(int x, int z) {
                         (const void *)0);
 
   //  Creation du buffer SSBO faces
+  glGenBuffers(1, &m_tmp_buffer_faces);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_tmp_buffer_faces);
+  // 32 en dur -> est ce qu'on peut trouver une formule pour connaitre le pire cas de faces visibles ?
+  glBufferData(GL_SHADER_STORAGE_BUFFER, C::BLOCKS_PER_CHUNK / 32 * sizeof(face),
+               nullptr, GL_DYNAMIC_DRAW);
+
+
+}
+
+GLuint Chunk::get_blocktype_buffer() { return m_buffer_blocktype; }
+GLuint Chunk::get_faces_buffer() { return m_tmp_buffer_faces; }
+GLuint Chunk::get_buffer_counter_faces() { return m_bufferVisibleFaceCounter; }
+GLuint Chunk::get_vao_blocktype() { return m_vao_blocktype; }
+GLuint Chunk::get_vao_faces() { return m_vao_faces; }
+
+void Chunk::reset_counter_faces(){
+    m_visibleFaceCounter = 0;
+}
+
+GLuint Chunk::get_counter_faces() {
+  glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+  glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_bufferVisibleFaceCounter);
+  glGetBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), &m_visibleFaceCounter);
+  return m_visibleFaceCounter;
+}
+
+void Chunk::print_counter_faces(){
+  std::cout << "Nombre de faces visibles : " << m_visibleFaceCounter << std::endl;
+}
+
+void Chunk::print_faces(){
+  GLuint ssbo = get_faces_buffer();
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+
+  // Mapper les données en lecture seule
+  face * data = (face *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0,
+                                        6 * sizeof(face), GL_MAP_READ_BIT);
+  if (data) {
+    for (int i = 0; i < 6; ++i) {
+      std::cout << "Face #" << i << "\n";
+      std::cout << "Blocktype: " << data[i].blocktype << "\n";
+      std::cout << "Normal: " << data[i].normal[0] << ",  " << data[i].normal[1] << ",  " << data[i].normal[2] << "\n";
+      for (int v = 0; v < 4; ++v) {
+        std::cout << "  Vertex " << v << "--->      " << data[i].vert[v][0] << ",  " << data[i].vert[v][1] << ",  " << data[i].vert[v][2]
+                  << "\n";
+        std::cout << "  UV     " << v << ": "
+                  << data[i].coord_tex[v][0] << ",  " << data[i].coord_tex[v][1] << "\n";
+      }
+      std::cout << "----------------------\n";
+    }
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+  } else {
+    std::cerr << "Erreur : impossible de mapper le SSBO.\n";
+  }
+
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+void Chunk::genLowMemBuffer(){
+  // On copie les données du buffer tmp_buffer_faces vers buffer_faces qui
+  // a exactement la taille du nombre de faces générées
   glGenBuffers(1, &m_buffer_faces);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_buffer_faces);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, C::BLOCKS_PER_CHUNK * 6 * sizeof(face),
+  glBufferData(GL_SHADER_STORAGE_BUFFER, m_visibleFaceCounter * sizeof(face),
                nullptr, GL_DYNAMIC_DRAW);
+
 
   //  Creation du VAO correspondant au buffer SSBO faces
   glGenVertexArrays(1, &m_vao_faces);
   glBindVertexArray(m_vao_faces);
   glBindBuffer(GL_ARRAY_BUFFER, m_buffer_faces);
-  glBufferData(GL_ARRAY_BUFFER, C::BLOCKS_PER_CHUNK * 6 * sizeof(face), nullptr,
+  glBufferData(GL_ARRAY_BUFFER, m_visibleFaceCounter * sizeof(face), nullptr,
                GL_DYNAMIC_DRAW);
 
   // blockype (as uint)
@@ -101,55 +162,18 @@ Chunk::Chunk(int x, int z) {
   glEnableVertexAttribArray(9);
   glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(face), (void *)(120));
   glVertexAttribDivisor(9, 1);
-}
 
-GLuint Chunk::get_blocktype_buffer() { return m_buffer_blocktype; }
-GLuint Chunk::get_faces_buffer() { return m_buffer_faces; }
-GLuint Chunk::get_buffer_counter_faces() { return m_bufferVisibleFaceCounter; }
-GLuint Chunk::get_vao_blocktype() { return m_vao_blocktype; }
-GLuint Chunk::get_vao_faces() { return m_vao_faces; }
+  // Copie
+  glBindBuffer(GL_COPY_READ_BUFFER, m_tmp_buffer_faces);
+  glBindBuffer(GL_COPY_WRITE_BUFFER, m_buffer_faces);
+  glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0,
+                      0, m_visibleFaceCounter * sizeof(face));
 
-void Chunk::reset_counter_faces(){
-    m_visibleFaceCounter = 0;
-}
-
-GLuint Chunk::get_counter_faces() {
-  glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
-  glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_bufferVisibleFaceCounter);
-  glGetBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), &m_visibleFaceCounter);
-  return m_visibleFaceCounter;
-}
-
-void Chunk::print_counter_faces(){
-  std::cout << "Nombre de faces visibles : " << m_visibleFaceCounter << std::endl;
-}
-
-void Chunk::print_faces(){
-  GLuint ssbo = get_faces_buffer();
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-
-  // Mapper les données en lecture seule
-  face * data = (face *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0,
-                                        6 * sizeof(face), GL_MAP_READ_BIT);
-  if (data) {
-    for (int i = 0; i < 6; ++i) {
-      std::cout << "Face #" << i << "\n";
-      std::cout << "Blocktype: " << data[i].blocktype << "\n";
-      std::cout << "Normal: " << data[i].normal[0] << ",  " << data[i].normal[1] << ",  " << data[i].normal[2] << "\n";
-      for (int v = 0; v < 4; ++v) {
-        std::cout << "  Vertex " << v << "--->      " << data[i].vert[v][0] << ",  " << data[i].vert[v][1] << ",  " << data[i].vert[v][2]
-                  << "\n";
-        std::cout << "  UV     " << v << ": "
-                  << data[i].coord_tex[v][0] << ",  " << data[i].coord_tex[v][1] << "\n";
-      }
-      std::cout << "----------------------\n";
-    }
-    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-  } else {
-    std::cerr << "Erreur : impossible de mapper le SSBO.\n";
-  }
-
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+  // Libère le buffer temporaire
+  glDeleteBuffers(1, &m_tmp_buffer_faces);
 }
 
 Chunk::~Chunk() {

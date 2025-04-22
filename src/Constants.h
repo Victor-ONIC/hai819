@@ -28,13 +28,17 @@ constexpr int WINDOW_HEIGHT = 1080;
 //constexpr int CHUNK_HEIGHT = 256;
 //constexpr int CHUNK_DEPTH = 256;
 
+//constexpr int CHUNK_WIDTH = 320;
+//constexpr int CHUNK_HEIGHT = 320;
+//constexpr int CHUNK_DEPTH = 320;
+
 //constexpr int CHUNK_WIDTH = 128;
 //constexpr int CHUNK_HEIGHT = 64;
 //constexpr int CHUNK_DEPTH = 128;
 
-constexpr int CHUNK_WIDTH = 216;
-constexpr int CHUNK_HEIGHT = 216;
-constexpr int CHUNK_DEPTH = 216;
+constexpr int CHUNK_WIDTH = 512;
+constexpr int CHUNK_HEIGHT = 512;
+constexpr int CHUNK_DEPTH = 512;
 
 constexpr uint64_t BLOCKS_PER_CHUNK = CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH;
 

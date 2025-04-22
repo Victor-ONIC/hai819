@@ -28,12 +28,13 @@ public:
   void reset_counter_faces();
   GLuint get_buffer_counter_faces();
   GLuint get_vao_faces();
+  void genLowMemBuffer();
   ~Chunk();
 
 private:
   int m_x, m_z;
   GLuint m_buffer_blocktype, m_vao_blocktype; // SSBO et VAO reliés, 1 GLuint par bloc pour représenter son type
-  GLuint m_buffer_faces, m_vao_faces; // SSBO et VAO reliés, faces visibles des blocs
+  GLuint m_tmp_buffer_faces, m_buffer_faces, m_vao_faces; // SSBO et VAO reliés, faces visibles des blocs
   GLuint m_visibleFaceCounter, m_bufferVisibleFaceCounter; // counter face visible + id buffer
 };
 
