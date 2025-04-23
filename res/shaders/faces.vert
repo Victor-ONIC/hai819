@@ -11,9 +11,9 @@ layout (location = 7) in vec2 coord_tex1;
 layout (location = 8) in vec2 coord_tex2;
 layout (location = 9) in vec2 coord_tex3;
 
-uniform sampler2D grass_tex;
-uniform sampler2D water_tex;
-uniform sampler2D cobble_tex;
+//uniform sampler2D grass_tex;
+//uniform sampler2D water_tex;
+//uniform sampler2D cobble_tex;
 uniform vec4 Lp;
 uniform mat4 MVP;
 uniform mat4 view;

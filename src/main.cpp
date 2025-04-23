@@ -26,7 +26,7 @@ namespace C = Constants;
 
 static inline void draw_chunk_faces(Chunk * chunk, Camera cam) {
   glm::mat4 mvp;
-  glm::vec4 light_pos = glm::vec4(0.0, 50000.0, 10000.0, 1.0);
+  static glm::vec4 light_pos = glm::vec4(0.0, 50000.0, 10000.0, 1.0);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
 
@@ -34,15 +34,15 @@ static inline void draw_chunk_faces(Chunk * chunk, Camera cam) {
   shader->use();
   // TODO l'ordre des 4 lignes ci-dessous doit être garder sinon ça casse, ce
   // qui n'est pas normal
-  Texture grass("../res/textures/grass.jpg"); // TODO avoir un Texture Manager
-  Texture water("../res/textures/water.jpg");
-  Texture cobble("../res/textures/cobble.jpg");
-  grass.bind(0);
-  water.bind(1);
-  cobble.bind(2);
-  shader->set_uniform("grass_tex", 0);
-  shader->set_uniform("water_tex", 1);
-  shader->set_uniform("cobble_tex", 2);
+  //Texture grass("../res/textures/grass.jpg"); // TODO avoir un Texture Manager
+  //Texture water("../res/textures/water.jpg");
+  //Texture cobble("../res/textures/cobble.jpg");
+  //grass.bind(0);
+  //water.bind(1);
+  //cobble.bind(2);
+  //shader->set_uniform("grass_tex", 0);
+  //shader->set_uniform("water_tex", 1);
+  //shader->set_uniform("cobble_tex", 2);
   mvp = cam.get_proj() * cam.get_view();
   glBindVertexArray(chunk->get_vao_faces()); // Associer VAO
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
@@ -57,8 +57,6 @@ static inline void draw_chunk_faces(Chunk * chunk, Camera cam) {
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_faces_buffer());
   // Dessiner les instances
   glDrawArraysInstanced(GL_TRIANGLES, 0, 6, chunk->get_counter_faces());
-  //glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 36);
-
 
   shader->stop();
   glBindVertexArray(0);
@@ -190,7 +188,6 @@ static inline void init() {
   world.initChunk(0, 0);
   chunkbuilder.build(world.tryGetChunk(0, 0));
 
-  /*
   world.initChunk(0, 1);
   chunkbuilder.build(world.tryGetChunk(0, 1));
 
@@ -214,6 +211,7 @@ static inline void init() {
 
   world.initChunk(2, 2);
   chunkbuilder.build(world.tryGetChunk(2, 2));
+  /*
   */
   glEnable(GL_DEPTH_TEST);
 }
@@ -251,8 +249,8 @@ static inline void camera_settings(Camera &cam, float current_time) {
             glm::vec3((GLfloat)C::CHUNK_WIDTH, 150.0, (GLfloat)C::CHUNK_DEPTH),
             glm::vec3(0.0, 1.0, 0.0));
             */
-  cam.update(glm::vec3(1.5 * dist * sin(vit * current_time), 150.0,
-                       1.2 * dist * cos(vit * current_time)),
+  cam.update(glm::vec3(1.5 * dist * cos(vit * current_time), 150.0,
+                       1.2 * dist * sin(vit * current_time)),
              glm::vec3((GLfloat)C::CHUNK_WIDTH/2, 50.0, (GLfloat)C::CHUNK_DEPTH/2),
              glm::vec3(0.0, 1.0, 0.0));
 }
