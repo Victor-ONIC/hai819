@@ -74,7 +74,7 @@ vec3 normalize_id(ivec3 id, uint width, uint height, uint depth){
 }
 
 uint compute_2D(float noise, float ground_height, float ind3D_y){
-    if(((noise * 0.5) + ground_height) > ind3D_y) return 1;
+    if(((noise * 0.49) + ground_height) > ind3D_y) return 1;
     //if(((abs(noise) * 0.5) + ground_height) > ind3D_y) return 1;
     return 0;
 }
