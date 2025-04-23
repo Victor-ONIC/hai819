@@ -85,7 +85,7 @@ void main()
     uint id1D = index3DTo1D(id.x, id.y, id.z, map_width, map_height);
     float noise_2D = 0.0, A = 1.0, mf = 1.0;
     vec3 offset = vec3(1.0);
-    float zoom2D = 1.5;
+    float zoom2D = 0.5;
     vec3 ind3D = normalize_id(id, map_width, map_height, map_depth);
     vec2 indxz = ind3D.xz;
     float coef_pow2D = 0.45;

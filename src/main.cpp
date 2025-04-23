@@ -185,34 +185,12 @@ static inline void init() {
 
   World &world = World::getInstance();
   ChunkBuilder chunkbuilder = ChunkBuilder(); // TODO Singleton Pattern ou un Manager
-  world.initChunk(0, 0);
-  chunkbuilder.build(world.tryGetChunk(0, 0));
-
-  world.initChunk(0, 1);
-  chunkbuilder.build(world.tryGetChunk(0, 1));
-
-  world.initChunk(1, 1);
-  chunkbuilder.build(world.tryGetChunk(1, 1));
-
-  world.initChunk(1, 0);
-  chunkbuilder.build(world.tryGetChunk(1, 0));
-
-  world.initChunk(1, 1);
-  chunkbuilder.build(world.tryGetChunk(1, 1));
-
-  world.initChunk(1, 2);
-  chunkbuilder.build(world.tryGetChunk(1, 2));
-
-  world.initChunk(2, 0);
-  chunkbuilder.build(world.tryGetChunk(2, 0));
-
-  world.initChunk(2, 1);
-  chunkbuilder.build(world.tryGetChunk(2, 1));
-
-  world.initChunk(2, 2);
-  chunkbuilder.build(world.tryGetChunk(2, 2));
-  /*
-  */
+  for (size_t x = 0; x < 3; ++x) {
+    for (size_t z = 0; z < 3; ++z) {
+      world.initChunk(x, z);
+      chunkbuilder.build(world.tryGetChunk(x, z));
+    }
+  }
   glEnable(GL_DEPTH_TEST);
 }
 
@@ -249,9 +227,9 @@ static inline void camera_settings(Camera &cam, float current_time) {
             glm::vec3((GLfloat)C::CHUNK_WIDTH, 150.0, (GLfloat)C::CHUNK_DEPTH),
             glm::vec3(0.0, 1.0, 0.0));
             */
-  cam.update(glm::vec3(1.5 * dist * cos(vit * current_time), 150.0,
+  cam.update(glm::vec3(1.5 * dist * cos(vit * current_time), 350.0,
                        1.2 * dist * sin(vit * current_time)),
-             glm::vec3((GLfloat)C::CHUNK_WIDTH/2, 50.0, (GLfloat)C::CHUNK_DEPTH/2),
+             glm::vec3((GLfloat)C::CHUNK_WIDTH/2, 150.0, (GLfloat)C::CHUNK_DEPTH/2),
              glm::vec3(0.0, 1.0, 0.0));
 }
 

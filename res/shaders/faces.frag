@@ -27,13 +27,15 @@ void main(void) {
         fragColor = vec4((0.9 * phongIL * texColor.rgb), 1.0);
     }
     else if(fragBlockType == 2){
-        vec4 texColor = vec4(0.75, 0.85, 0.99, 1.0);
+        //vec4 texColor = vec4(0.75, 0.85, 0.99, 1.0);
+        vec4 texColor = vec4(0.25, 0.35, 0.79, 1.0);
         //vec4 texColor = texture(water_tex, fragTexCoord);
         fragColor = vec4((1.0 * phongIL * texColor.rgb), 0.8);
         //fragColor = vec4((0.6 * texColor.rgb), 1.00);
     }
     else if(fragBlockType == 3){
-        vec4 texColor = vec4(1.0);
+        //vec4 texColor = vec4(1.0);
+        vec4 texColor = vec4(0.25, 0.40, 0.15, 1.0);
         //vec4 texColor = vec4(0.90, 0.90, 0.90, 1.0);
         //vec4 texColor = texture(grass_tex, fragTexCoord);
         fragColor = vec4((phongIL * texColor.rgb), 1.0);
