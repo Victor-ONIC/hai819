@@ -36,15 +36,11 @@ void main()
 
     // Calcul du sommet courant et de la texcoord associée
     vec4 pos = verts[indices[gl_VertexID]];
-    //pos = vec4(pos.x, pos.y, pos.z, pos.w);
     vec2 texCoord = coords_tex[indices[gl_VertexID]]; // Renommé pour éviter la confusion
 
     // Offset du Chunk
     pos.x = pos.x + offsetx;
     pos.z = pos.z + offsetz;
-
-    //pos.x = pos.x + 512;
-    //pos.z = pos.z + 512;
 
     // Projection et view
     gl_Position = MVP * pos;

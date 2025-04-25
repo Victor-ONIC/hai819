@@ -21,6 +21,7 @@ public:
   void pos_update(glm::vec3 pos);
   void look_at_update(glm::vec3 look_at);
   void head_update(glm::vec3 head);
+  glm::vec3 get_pos();
   glm::mat4 get_view();
   glm::mat4 get_proj();
   ~Camera();

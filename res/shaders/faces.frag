@@ -1,4 +1,4 @@
-#version 460 core
+#version 460
 
 in flat uint fragBlockType;
 in vec2 fragTexCoord;
@@ -28,9 +28,9 @@ void main(void) {
     }
     else if(fragBlockType == 2){
         //vec4 texColor = vec4(0.75, 0.85, 0.99, 1.0);
-        vec4 texColor = vec4(0.25, 0.35, 0.79, 1.0);
+        vec4 texColor = vec4(0.15, 0.25, 0.69, 1.0);
         //vec4 texColor = texture(water_tex, fragTexCoord);
-        fragColor = vec4((1.0 * phongIL * texColor.rgb), 0.8);
+        fragColor = vec4((1.0 * phongIL * texColor.rgb), 1.0);
         //fragColor = vec4((0.6 * texColor.rgb), 1.00);
     }
     else if(fragBlockType == 3){

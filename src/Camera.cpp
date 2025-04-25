@@ -30,6 +30,10 @@ void Camera::head_update(glm::vec3 head){
      m_head = head;
   }
 
+glm::vec3 Camera::get_pos(){
+  return m_pos;
+}
+
 glm::mat4 Camera::get_view(){
   return m_view;
 }

@@ -26,7 +26,7 @@ constexpr int WINDOW_HEIGHT = 1080;
 //constexpr int CHUNK_DEPTH = 128;
 
 //constexpr int CHUNK_WIDTH = 512;
-//constexpr int CHUNK_HEIGHT = 128;
+//constexpr int CHUNK_HEIGHT = 256;
 //constexpr int CHUNK_DEPTH = 512;
 
 constexpr int CHUNK_WIDTH = 256;

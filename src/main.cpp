@@ -20,6 +20,7 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
+#include <random>
 
 namespace C = Constants;
 
@@ -63,14 +64,6 @@ static inline void draw_chunk_faces(Chunk * chunk, Camera cam) {
   glUseProgram(0);
 }
 
-static inline void draw_all_chunk(Camera cam){
-  World &world = World::getInstance();
-  for (auto &[key, chunkPtr] : world.m_chunks) {
-    if (chunkPtr) {
-      draw_chunk_faces(chunkPtr.get(), cam);
-    }
-  }
-}
 
 static inline void draw_chunk_uint(Camera cam) {
   glm::vec4 light_pos = glm::vec4(300.0, 500.0, 200.0, 1.0);
@@ -108,11 +101,49 @@ static inline void draw_chunk_uint(Camera cam) {
   glBindVertexArray(0);
   glUseProgram(0);
 }
+
 static inline void process_chunk(Chunk &chunk) {
+  //assert(chunk);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
   ChunkBuilder chunkbuilder = ChunkBuilder();
   chunkbuilder.build(&chunk);
+}
+
+static inline void draw_all_chunk(Camera cam){
+  World &world = World::getInstance();
+  ChunkBuilder chunkbuilder = ChunkBuilder();
+  for (auto &[key, chunkPtr] : world.m_chunks) {
+    if (chunkPtr) {
+      draw_chunk_faces(chunkPtr.get(), cam);
+    }
+  }
+}
+
+static inline void draw_chunks_below(Camera cam){
+  World &world = World::getInstance();
+  ChunkBuilder chunkbuilder = ChunkBuilder();
+  Chunk * chunk;
+  int x = floor(cam.get_pos()[0] / C::CHUNK_WIDTH);
+  int z = floor(cam.get_pos()[2] / C::CHUNK_DEPTH);
+  for (int i = -2; i < 3; ++i) {
+    for (int j = -2; j < 3; ++j) {
+      chunk = world.tryGetChunk(x + i, z + j);
+      if (!chunk) {
+        world.initChunk(x + i, z + j);
+        chunkbuilder.build(world.tryGetChunk(x + i, z + j));
+      }
+      chunk = world.tryGetChunk(x + i, z + j);
+      if (chunk) draw_chunk_faces(chunk, cam);
+    }
+  }
+}
+
+int generate_seed() {
+    static std::random_device rd;
+    static std::mt19937 gen(rd()); // bonne entropie
+    static std::uniform_int_distribution<int> dis(-100000, 100000); // bornes selon ton besoin
+    return dis(gen);
 }
 
 static inline void init() {
@@ -124,6 +155,7 @@ static inline void init() {
   shader_manager.loadShader("mapComputeHeight", "../res/shaders/map.comp");
   shader = shader_manager.getShader("mapComputeHeight");
   shader->use();
+  shader->set_uniform("u_seed", generate_seed());
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
@@ -134,6 +166,7 @@ static inline void init() {
   shader_manager.loadShader("mapCompute3D", "../res/shaders/map3D.comp");
   shader = shader_manager.getShader("mapCompute3D");
   shader->use();
+  shader->set_uniform("u_seed", generate_seed());
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
@@ -157,7 +190,6 @@ static inline void init() {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  //shader->set_num_groups(C::BLOCKS_PER_CHUNK/1024, 1, 1);
   shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
   shader->stop();
 
@@ -185,12 +217,18 @@ static inline void init() {
 
   World &world = World::getInstance();
   ChunkBuilder chunkbuilder = ChunkBuilder(); // TODO Singleton Pattern ou un Manager
-  for (size_t x = 0; x < 3; ++x) {
-    for (size_t z = 0; z < 3; ++z) {
+
+  //world.initChunk(0, 0);
+  //chunkbuilder.build(world.tryGetChunk(0, 0));
+  //
+  /*
+  for (size_t x = 0; x < 6; ++x) {
+    for (size_t z = 0; z < 6; ++z) {
       world.initChunk(x, z);
       chunkbuilder.build(world.tryGetChunk(x, z));
     }
   }
+  */
   glEnable(GL_DEPTH_TEST);
 }
 
@@ -212,25 +250,31 @@ static inline void draw(Camera cam) {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   draw_cube_repere(cam);
-  //draw_chunk_uint(cam);
-  //draw_chunk_faces(cam);
-  draw_all_chunk(cam);
+  //draw_all_chunk(cam);
+  draw_chunks_below(cam);
 }
 
 static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
-  GLfloat dist = 290.0;
-  GLfloat vit = 0.4;
+  GLfloat dist = 100.0;
+  GLfloat vit = 0.2;
   /*
   cam.update(
             glm::vec3(-80.0, 250.0, -80.0),
             glm::vec3((GLfloat)C::CHUNK_WIDTH, 150.0, (GLfloat)C::CHUNK_DEPTH),
             glm::vec3(0.0, 1.0, 0.0));
             */
-  cam.update(glm::vec3(1.5 * dist * cos(vit * current_time), 350.0,
-                       1.2 * dist * sin(vit * current_time)),
-             glm::vec3((GLfloat)C::CHUNK_WIDTH/2, 150.0, (GLfloat)C::CHUNK_DEPTH/2),
+            /*
+  cam.update(glm::vec3(-10.5 * dist * cos(vit * current_time), 130.0 + 0.5 * dist * (1.0 + cos(vit * current_time)),
+                       10.2 * dist * sin(vit * current_time)),
+             glm::vec3((GLfloat)C::CHUNK_WIDTH * 3, 0.0, (GLfloat)C::CHUNK_DEPTH * 3),
              glm::vec3(0.0, 1.0, 0.0));
+             */
+  cam.update(
+            glm::vec3(10.0 * dist * cos(vit * current_time), 3000.0, 10.0 * dist * sin(vit * current_time)),
+            glm::vec3(10.0 * dist * cos(vit * current_time), 0.0, 10 * dist * sin(vit * current_time)),
+            //glm::vec3(0.0, 0.0, 0.0),
+            glm::vec3(0.0, 1.0, 1.0));
 }
 
 int main() {
