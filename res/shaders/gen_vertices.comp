@@ -77,13 +77,20 @@ int index3DTo1D(int x, int y, int z, int width, int height) {
     return x + y * width + z * (width * height);
 }
 
+bool is_edge(int x, int y, int z){
+    if(x==0 || y==0 || z==0) return true;
+    if(x==map_width || y==map_height || z==map_depth) return true;
+    return false;
+}
+
 void main() {
     ivec3 id = ivec3(gl_GlobalInvocationID.xyz);
     if (id.x >= map_width || id.y >= map_height || id.z >= map_depth) return;
-
     uint index = index3DTo1D(id.x, id.y, id.z, map_width, map_height);
     uint type = data[index];
     if (type == 0) return;
+    //if (is_edge(id.x, id.y, id.z) && (type == 2)) return;
+    //if (is_edge(id.x, id.y, id.z)) return;
 
     for (int f = 0; f < 6; ++f) {
         ivec3 neighbor = id + ivec3(offset[f]);

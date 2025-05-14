@@ -2,12 +2,14 @@
 #include "Chunk.h"
 #include "ChunkBuilder.h"
 #include "Constants.h"
+#include "Param.h"
 #include "Cube.h"
 #include "GameEngine.h"
 #include "Noise.h"
 #include "Shader.h"
 #include "ShaderManager.h"
 #include "Texture.h"
+#include "TextureManager.h"
 #include "World.h"
 #include "glm/gtx/transform.hpp"
 #include <GL/glew.h> // first
@@ -19,42 +21,75 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <math.h>
-#include <vector>
 #include <random>
+#include <vector>
 
 namespace C = Constants;
+namespace P = Param;
 
+static inline void mouse_callback(GLFWwindow *window, double xpos,
+                                  double ypos) {
+  Camera *cam = static_cast<Camera *>(glfwGetWindowUserPointer(window));
 
-static inline void draw_chunk_faces(Chunk * chunk, Camera cam) {
+  float xoffset, yoffset;
+  if (cam->firstMouse) {
+    cam->lastX = xpos;
+    cam->lastY = ypos;
+    cam->firstMouse = false;
+  }
+
+  xoffset = xpos - cam->lastX;
+  yoffset = cam->lastY - ypos; // inversé car y va de bas en haut
+
+  cam->lastX = xpos;
+  cam->lastY = ypos;
+
+  cam->process_mouse_movement(xoffset, yoffset);
+}
+
+static inline void print_vram() {
+  GLint total_mem_kb = 0;
+  glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &total_mem_kb);
+  std::cout << "Mémoire vidéo totale : " << total_mem_kb / 1024 << " Mo"
+            << std::endl;
+
+  GLint current_mem_kb = 0;
+  glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
+                &current_mem_kb);
+  std::cout << "Mémoire disponible : " << current_mem_kb / 1024 << " Mo"
+            << std::endl
+            << std::endl;
+}
+
+static inline void draw_chunk_faces(Chunk *chunk, Camera cam) {
   glm::mat4 mvp;
-  static glm::vec4 light_pos = glm::vec4(0.0, 50000.0, 10000.0, 1.0);
+  static glm::vec4 light_pos = glm::vec4(0.0, 2000.0, 5000.0, 1.0);
   GameEngine &engine = GameEngine::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
+  TextureManager &texture_manager = TextureManager::getInstance();
+  std::shared_ptr<Texture> texture;
 
   std::shared_ptr<Shader> shader = shader_manager.getShader("mapDrawFaces");
   shader->use();
-  // TODO l'ordre des 4 lignes ci-dessous doit être garder sinon ça casse, ce
-  // qui n'est pas normal
-  //Texture grass("../res/textures/grass.jpg"); // TODO avoir un Texture Manager
-  //Texture water("../res/textures/water.jpg");
-  //Texture cobble("../res/textures/cobble.jpg");
-  //grass.bind(0);
-  //water.bind(1);
-  //cobble.bind(2);
-  //shader->set_uniform("grass_tex", 0);
-  //shader->set_uniform("water_tex", 1);
-  //shader->set_uniform("cobble_tex", 2);
+
+  texture = texture_manager.getTexture("grass_tex");
+  texture->bind(0);
+  texture = texture_manager.getTexture("water_tex");
+  texture->bind(1);
+  texture = texture_manager.getTexture("cobble_tex");
+  texture->bind(2);
+  shader->set_uniform("grass_tex", 0);
+  shader->set_uniform("water_tex", 1);
+  shader->set_uniform("cobble_tex", 2);
   mvp = cam.get_proj() * cam.get_view();
   glBindVertexArray(chunk->get_vao_faces()); // Associer VAO
-  shader->set_uniform("map_width", C::CHUNK_WIDTH);
-  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
-  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
   shader->set_uniform("Lp", light_pos);
   shader->set_uniform("MVP", mvp);
   shader->set_uniform("view", cam.get_view());
+  shader->set_uniform("proj", cam.get_proj());
   shader->set_uniform("offsetx", float(chunk->get_xz()[0]));
   shader->set_uniform("offsetz", float(chunk->get_xz()[1]));
-
+  shader->set_uniform("cam", cam.get_pos());
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_faces_buffer());
   // Dessiner les instances
   glDrawArraysInstanced(GL_TRIANGLES, 0, 6, chunk->get_counter_faces());
@@ -64,92 +99,57 @@ static inline void draw_chunk_faces(Chunk * chunk, Camera cam) {
   glUseProgram(0);
 }
 
-
-static inline void draw_chunk_uint(Camera cam) {
-  glm::vec4 light_pos = glm::vec4(300.0, 500.0, 200.0, 1.0);
-  GameEngine &engine = GameEngine::getInstance();
-  ShaderManager &shader_manager = ShaderManager::getInstance();
-  World &world = World::getInstance();
-  Chunk *chunk = world.tryGetChunk(0, 0);
-
-  std::shared_ptr<Shader> shader = shader_manager.getShader("mapDrawUint");
-  shader->use();
-  // TODO l'ordre des 4 lignes ci-dessous doit être garder sinon ça casse, ce
-  // qui n'est pas normal
-  Texture grass("../res/textures/grass.jpg"); // TODO avoir un Texture Manager
-  Texture water("../res/textures/water.jpg");
-  Texture cobble("../res/textures/cobble.jpg");
-  grass.bind(0);
-  water.bind(1);
-  cobble.bind(2);
-  shader->set_uniform("grass_tex", 0);
-  shader->set_uniform("water_tex", 1);
-  shader->set_uniform("cobble_tex", 2);
-  glm::mat4 mvp = cam.get_proj() * cam.get_view();
-  glBindVertexArray(chunk->get_vao_blocktype()); // Associer VAO
-  shader->set_uniform("map_width", C::CHUNK_WIDTH);
-  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
-  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  shader->set_uniform("Lp", light_pos);
-  shader->set_uniform("MVP", mvp);
-  shader->set_uniform("view", cam.get_view());
-
-  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunk->get_blocktype_buffer());
-  glDrawArrays(GL_POINTS, 0, C::BLOCKS_PER_CHUNK); // 1 vertex par bloc
-
-  shader->stop();
-  glBindVertexArray(0);
-  glUseProgram(0);
-}
-
-static inline void process_chunk(Chunk &chunk) {
-  //assert(chunk);
-  GameEngine &engine = GameEngine::getInstance();
-  ShaderManager &shader_manager = ShaderManager::getInstance();
-  ChunkBuilder chunkbuilder = ChunkBuilder();
-  chunkbuilder.build(&chunk);
-}
-
-static inline void draw_all_chunk(Camera cam){
-  World &world = World::getInstance();
-  ChunkBuilder chunkbuilder = ChunkBuilder();
-  for (auto &[key, chunkPtr] : world.m_chunks) {
-    if (chunkPtr) {
-      draw_chunk_faces(chunkPtr.get(), cam);
+static inline void update_chunk_state(Chunk *chunk, Camera cam) {
+  if (!(chunk->renderable) && chunk->m_fence) {
+    GLenum res =
+        glClientWaitSync(chunk->m_fence, 0, 0); // 0 timeout = non bloquant
+    if (res == GL_ALREADY_SIGNALED || res == GL_CONDITION_SATISFIED) {
+      glDeleteSync(chunk->m_fence);
+      chunk->m_fence = nullptr;
+      chunk->renderable = true;
+      chunk->is_being_processed = false;
     }
   }
 }
 
-static inline void draw_chunks_below(Camera cam){
+static inline void draw_chunks_below(Camera cam) {
   World &world = World::getInstance();
   ChunkBuilder chunkbuilder = ChunkBuilder();
-  Chunk * chunk;
+  Chunk *chunk;
   int x = floor(cam.get_pos()[0] / C::CHUNK_WIDTH);
   int z = floor(cam.get_pos()[2] / C::CHUNK_DEPTH);
-  for (int i = -2; i < 3; ++i) {
-    for (int j = -2; j < 3; ++j) {
+  for (int i = P::minit; i < P::maxit; ++i) {
+    for (int j = P::minit; j < P::maxit; ++j) {
       chunk = world.tryGetChunk(x + i, z + j);
-      if (!chunk) {
+      if (chunk)
+        update_chunk_state(chunk, cam);
+      else {
         world.initChunk(x + i, z + j);
-        chunkbuilder.build(world.tryGetChunk(x + i, z + j));
       }
-      chunk = world.tryGetChunk(x + i, z + j);
-      if (chunk) draw_chunk_faces(chunk, cam);
+      if (chunk && chunk->renderable) {
+        draw_chunk_faces(chunk, cam);
+      }
     }
   }
+  world.delete_chunks(cam, 80.0);
+  //world.print_nb_chunks();
 }
 
-int generate_seed() {
-    static std::random_device rd;
-    static std::mt19937 gen(rd()); // bonne entropie
-    static std::uniform_int_distribution<int> dis(-100000, 100000); // bornes selon ton besoin
-    return dis(gen);
+
+static inline int generate_seed() {
+  static std::random_device rd;
+  static std::mt19937 gen(rd()); // bonne entropie
+  static std::uniform_int_distribution<int> dis(
+      -100000, 100000); // bornes selon ton besoin
+  return dis(gen);
 }
 
-static inline void init() {
+static inline void init(Camera cam) {
   GameEngine &engine = GameEngine::getInstance();
+  TextureManager &texture_manager = TextureManager::getInstance();
   ShaderManager &shader_manager = ShaderManager::getInstance();
   std::shared_ptr<Shader> shader;
+  std::shared_ptr<Texture> texture;
 
   // Compute Shader - Map Compute Height
   shader_manager.loadShader("mapComputeHeight", "../res/shaders/map.comp");
@@ -159,7 +159,8 @@ static inline void init() {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
+  shader->set_num_groups(C::CHUNK_WIDTH / 8, C::CHUNK_HEIGHT / 8,
+                         C::CHUNK_DEPTH / 8);
   shader->stop();
 
   // Compute Shader - Map Compute 3D
@@ -170,7 +171,8 @@ static inline void init() {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
+  shader->set_num_groups(C::CHUNK_WIDTH / 8, C::CHUNK_HEIGHT / 8,
+                         C::CHUNK_DEPTH / 8);
   shader->stop();
   //
   // Compute Shader - Grass Compute
@@ -180,7 +182,8 @@ static inline void init() {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
+  shader->set_num_groups(C::CHUNK_WIDTH / 8, C::CHUNK_HEIGHT / 8,
+                         C::CHUNK_DEPTH / 8);
   shader->stop();
 
   // Compute Shader - Water Compute
@@ -190,7 +193,8 @@ static inline void init() {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
+  shader->set_num_groups(C::CHUNK_WIDTH / 8, C::CHUNK_HEIGHT / 8,
+                         C::CHUNK_DEPTH / 8);
   shader->stop();
 
   // Compute Shader - Gen Vertices
@@ -200,7 +204,8 @@ static inline void init() {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  shader->set_num_groups(C::CHUNK_WIDTH/8, C::CHUNK_HEIGHT/8, C::CHUNK_DEPTH/8);
+  shader->set_num_groups(C::CHUNK_WIDTH / 8, C::CHUNK_HEIGHT / 8,
+                         C::CHUNK_DEPTH / 8);
   shader->stop();
 
   // Uint Map Draw Shader
@@ -211,24 +216,30 @@ static inline void init() {
   // Faces Map Draw Shader
   shader_manager.loadShader("mapDrawFaces", "../res/shaders/faces.vert",
                             "../res/shaders/faces.frag");
+  shader = shader_manager.getShader("mapDrawFaces");
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  texture_manager.loadTexture("grass_tex", "../res/textures/grass.jpg");
+  texture_manager.loadTexture("water_tex", "../res/textures/water.jpg");
+  texture_manager.loadTexture("cobble_tex", "../res/textures/cobble.jpg");
+
   // Cube Repère Shader
   shader_manager.loadShader("cubeRepere", "../res/shaders/cube_repere.vert",
                             "../res/shaders/cube_repere.frag");
 
   World &world = World::getInstance();
-  ChunkBuilder chunkbuilder = ChunkBuilder(); // TODO Singleton Pattern ou un Manager
+  ChunkBuilder chunkbuilder = ChunkBuilder();
 
-  //world.initChunk(0, 0);
-  //chunkbuilder.build(world.tryGetChunk(0, 0));
-  //
-  /*
-  for (size_t x = 0; x < 6; ++x) {
-    for (size_t z = 0; z < 6; ++z) {
-      world.initChunk(x, z);
-      chunkbuilder.build(world.tryGetChunk(x, z));
+  int x = floor(cam.get_pos()[0] / C::CHUNK_WIDTH);
+  int z = floor(cam.get_pos()[2] / C::CHUNK_DEPTH);
+  for (int i = P::minit; i < P::maxit; ++i) {
+    for (int j = P::minit; j < P::maxit; ++j) {
+      world.initChunk(x + i, z + j);
+      chunkbuilder.build(world.tryGetChunk(x + i, z + j));
     }
   }
-  */
+
   glEnable(GL_DEPTH_TEST);
 }
 
@@ -244,40 +255,46 @@ static inline void draw_cube_repere(Camera cam) {
 }
 
 static inline void draw(Camera cam) {
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glClearColor(0.3f, 0.4f, 0.8f, 1.0f);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  draw_cube_repere(cam);
-  //draw_all_chunk(cam);
+  // draw_cube_repere(cam);
   draw_chunks_below(cam);
 }
 
 static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
-  GLfloat dist = 100.0;
-  GLfloat vit = 0.2;
-  /*
+  GLfloat dist = 60.0;
+  GLfloat vit = 0.1;
+
   cam.update(
-            glm::vec3(-80.0, 250.0, -80.0),
-            glm::vec3((GLfloat)C::CHUNK_WIDTH, 150.0, (GLfloat)C::CHUNK_DEPTH),
-            glm::vec3(0.0, 1.0, 0.0));
-            */
-            /*
-  cam.update(glm::vec3(-10.5 * dist * cos(vit * current_time), 130.0 + 0.5 * dist * (1.0 + cos(vit * current_time)),
-                       10.2 * dist * sin(vit * current_time)),
-             glm::vec3((GLfloat)C::CHUNK_WIDTH * 3, 0.0, (GLfloat)C::CHUNK_DEPTH * 3),
-             glm::vec3(0.0, 1.0, 0.0));
-             */
-  cam.update(
-            glm::vec3(10.0 * dist * cos(vit * current_time), 3000.0, 10.0 * dist * sin(vit * current_time)),
-            glm::vec3(10.0 * dist * cos(vit * current_time), 0.0, 10 * dist * sin(vit * current_time)),
-            //glm::vec3(0.0, 0.0, 0.0),
-            glm::vec3(0.0, 1.0, 1.0));
+      glm::vec3(-10.5 * dist * cos(vit * current_time), 170.0,
+                10.2 * dist * sin(vit * current_time)),
+      glm::vec3((GLfloat)C::CHUNK_WIDTH * 1, 0.0, (GLfloat)C::CHUNK_DEPTH * 1),
+      glm::vec3(0.0, 1.0, 0.0));
+}
+
+static inline void tick_chunkbuilder(Camera cam) {
+  int i = 0;
+  int max_chunks_per_tick = 3;
+  ChunkBuilder chunkbuilder = ChunkBuilder();
+  World &world = World::getInstance();
+  for (auto &[key, chunk] : world.m_chunks) {
+    if (chunk && !(chunk->is_being_processed) && !(chunk->renderable)) {
+      if ((++i) > max_chunks_per_tick)
+        break;
+      chunkbuilder.build(chunk.get());
+      print_vram();
+    }
+  }
 }
 
 int main() {
+  static float deltaTime = 0.0;
+  static float lastFrame = 0.0;
+  static float currentFrame = 0.0;
   srand(time(NULL));
   // GLFW
   if (glfwInit() != GLFW_TRUE) {
@@ -305,15 +322,25 @@ int main() {
   // OpenGL API
   glViewport(0, 0, C::WINDOW_WIDTH, C::WINDOW_HEIGHT);
 
-  init();
   Camera cam =
-      Camera(glm::vec3(100, 100, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  Camera(glm::vec3(0, 120, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  //camera_settings(cam, 0.0);
+  init(cam);
   auto lastTime = std::chrono::high_resolution_clock::now();
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetCursorPosCallback(window, mouse_callback);
+  glfwSetWindowUserPointer(window, &cam);
+
   while (glfwGetKey(window, GLFW_KEY_L) != GLFW_PRESS &&
          glfwWindowShouldClose(window) == 0) {
     auto currentTime = std::chrono::high_resolution_clock::now();
     float dt = std::chrono::duration<float>(currentTime - lastTime).count();
-    camera_settings(cam, dt);
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+    //camera_settings(cam, dt);
+    cam.process_keyboard(window, deltaTime);
+    tick_chunkbuilder(cam);
     draw(cam);
     glfwSwapBuffers(window);
     glfwPollEvents();

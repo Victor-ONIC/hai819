@@ -6,9 +6,54 @@ Camera::Camera(glm::vec3 pos, glm::vec3 look_at, glm::vec3 head){
    m_head = head;
    m_view = glm::lookAt(m_pos, m_look_at, m_head);
    //TODO ne plus avoir de valeurs en dur 1920-1080, mais d'où on prend ces valeurs ?
-   m_proj = glm::perspective(glm::radians(45.0f),
+   m_proj = glm::perspective(glm::radians(50.0f),
                              (float)1920 / (float)1080, 0.1f,
-                             9000.0f);
+                             2000.0f);
+}
+
+void Camera::update_vectors() {
+    glm::vec3 newFront;
+    newFront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    newFront.y = sin(glm::radians(pitch));
+    newFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front = glm::normalize(newFront);
+    right = glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f)));
+    up    = glm::normalize(glm::cross(right, front));
+    m_look_at = m_pos + front;
+    m_view = glm::lookAt(m_pos, m_look_at, up);
+}
+
+void Camera::process_keyboard(GLFWwindow* window, float deltaTime) {
+    float velocity = speed * deltaTime * 2.0;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        m_pos += front * velocity;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        m_pos -= front * velocity;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        m_pos -= right * velocity;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        m_pos += right * velocity;
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        m_pos += up * (velocity * 1.5f);
+    if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
+        m_pos -= up * (velocity * 1.5f);
+    update_vectors();
+}
+
+void Camera::process_mouse_movement(float xoffset, float yoffset, bool constrainPitch) {
+    float sensitivity = 0.01f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw   += xoffset;
+    pitch += yoffset;
+
+    if (constrainPitch) {
+        if (pitch > 89.0f) pitch = 89.0f;
+        if (pitch < -89.0f) pitch = -89.0f;
+    }
+
+    update_vectors();
 }
 
 void Camera::update(glm::vec3 pos, glm::vec3 look_at, glm::vec3 head){

@@ -19,6 +19,9 @@ namespace C =
 class Chunk {
 public:
   Chunk(int x, int z);
+  bool renderable = false;
+  bool is_being_processed = false;
+  GLsync m_fence = nullptr;     // synchronisation GPU
   glm::ivec2 get_xz();
   GLuint get_blocktype_buffer();
   GLuint get_faces_buffer();
@@ -29,6 +32,8 @@ public:
   void reset_counter_faces();
   GLuint get_buffer_counter_faces();
   GLuint get_vao_faces();
+  GLsync get_fence();
+  void set_fence();
   void genLowMemBuffer();
   ~Chunk();
 

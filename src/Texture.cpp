@@ -20,7 +20,6 @@ Texture::Texture(std::vector<uint8_t> buffer, size_t width, size_t height)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
 }
-
 Texture::Texture(const std::string& path)
 {
     // 1. Créer une texture.
@@ -32,32 +31,30 @@ Texture::Texture(const std::string& path)
     // 3. Modifier les propriétés de la texture.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    // ✅ On utilise les mipmaps correctement :
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // <-- important
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //
-    // Génère les mipmaps après avoir uploadé la texture
-    glGenerateMipmap(GL_TEXTURE_2D);
 
-    // 4. Injecter les données de cette texture.
+    // 4. Charger l'image
     stbi_set_flip_vertically_on_load(true);
-
-    int length, height, nb_channels;
-    unsigned char* data = stbi_load(path.c_str(), &length, &height, &nb_channels, 4);
+    int width, height, nb_channels;
+    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nb_channels, 4);
 
     if (data)
-        {
-            // Injecter les données de cette texture.
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, length, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    {
+        // 5. Upload de l'image
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-            // Dire à OpenGL d'automatiquement générer les mipmaps pour cette texture.
-            glGenerateMipmap(ID);
+        // 6. ✅ Maintenant qu'on a l'image, on génère les mipmaps
+        glGenerateMipmap(GL_TEXTURE_2D);
 
-            stbi_image_free(data);
-        }
+        stbi_image_free(data);
+    }
     else
-        {
-            std::cout << "ERREUR::TEXTURE - " << path << "\n";
-        }
+    {
+        std::cout << "ERREUR::TEXTURE - " << path << "\n";
+    }
 }
 
 Texture::~Texture()

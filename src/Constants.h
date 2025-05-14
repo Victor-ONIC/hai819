@@ -13,33 +13,30 @@ namespace Constants {
 constexpr int WINDOW_WIDTH = 1920;
 constexpr int WINDOW_HEIGHT = 1080;
 
-//constexpr int CHUNK_WIDTH = 256;
-//constexpr int CHUNK_HEIGHT = 64;
-//constexpr int CHUNK_DEPTH = 256;
+//constexpr int CHUNK_WIDTH = 16;
+//constexpr int CHUNK_HEIGHT = 16;
+//constexpr int CHUNK_DEPTH = 16;
 
-//constexpr int CHUNK_WIDTH = 64;
-//constexpr int CHUNK_HEIGHT = 256;
-//constexpr int CHUNK_DEPTH = 64;
+//constexpr int CHUNK_WIDTH = 32;
+//constexpr int CHUNK_HEIGHT = 32;
+//constexpr int CHUNK_DEPTH = 32;
+
+constexpr int CHUNK_WIDTH = 64;
+//constexpr int CHUNK_HEIGHT = 64;
+constexpr int CHUNK_DEPTH = 64;
+
 
 //constexpr int CHUNK_WIDTH = 128;
 //constexpr int CHUNK_HEIGHT = 128;
 //constexpr int CHUNK_DEPTH = 128;
 
-//constexpr int CHUNK_WIDTH = 512;
-//constexpr int CHUNK_HEIGHT = 256;
-//constexpr int CHUNK_DEPTH = 512;
-
-constexpr int CHUNK_WIDTH = 256;
+//constexpr int CHUNK_WIDTH = 256;
 constexpr int CHUNK_HEIGHT = 256;
-constexpr int CHUNK_DEPTH = 256;
+//constexpr int CHUNK_DEPTH = 256;
 
 //constexpr int CHUNK_WIDTH = 320;
 //constexpr int CHUNK_HEIGHT = 320;
 //constexpr int CHUNK_DEPTH = 320;
-
-//constexpr int CHUNK_WIDTH = 128;
-//constexpr int CHUNK_HEIGHT = 64;
-//constexpr int CHUNK_DEPTH = 128;
 
 //constexpr int CHUNK_WIDTH = 512;
 //constexpr int CHUNK_HEIGHT = 512;
@@ -77,16 +74,5 @@ struct face {
     glm::vec2 coord_tex[4];        // 32 octets
                                    // -> 64 + 16 + 4 + 12 + 8 + 4 == 128 octets
 };
-
-/*
-struct face{
-    uint blockype;        // 4 octets
-    vec4 vert[4];         // 64 octets
-    vec4 normal;          // 16 octets
-    vec2 coord_tex[4];    // 32 octets
-    float _padding[3];    // 12 octets
-                          // 4 + 64 + 16 + 32 + 12 == 128 octets
-};
-*/
 
 #endif // CONSTANTS_HPP

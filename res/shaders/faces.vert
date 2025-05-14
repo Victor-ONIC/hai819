@@ -11,19 +11,22 @@ layout (location = 7) in vec2 coord_tex1;
 layout (location = 8) in vec2 coord_tex2;
 layout (location = 9) in vec2 coord_tex3;
 
-//uniform sampler2D grass_tex;
-//uniform sampler2D water_tex;
-//uniform sampler2D cobble_tex;
+uniform sampler2D grass_tex;
+uniform sampler2D water_tex;
+uniform sampler2D cobble_tex;
 uniform vec4 Lp;
 uniform mat4 MVP;
 uniform mat4 view;
+uniform mat4 proj;
 uniform float offsetx;
 uniform float offsetz;
+uniform vec3 cam;
 
 flat out uint fragBlockType;
 out vec2 fragTexCoord;
 out vec3 fragNormal;
 out vec4 gsoModPos;
+out vec4 vsoPos;
 
 void main()
 {
@@ -44,7 +47,9 @@ void main()
 
     // Projection et view
     gl_Position = MVP * pos;
-    gsoModPos = view * vec4(gl_Position.xyz, 1.0);
+    //gsoModPos = view * vec4(gl_Position.xyz, 1.0);
+    gsoModPos = vec4(gl_Position.xyz, 1.0);
+    vsoPos = pos;
 
     // Sorties
     fragNormal = normalize(normal.xyz);

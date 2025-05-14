@@ -1,6 +1,7 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#include "Camera.h"
 #include "Chunk.h"
 #include "ChunkKey.h"
 #include <memory>
@@ -18,6 +19,8 @@ public:
   Chunk * tryGetChunk(int x, int z); // TODO modifier pour ne pas avoir à gérer un nullptr
   bool hasChunk(int x, int z) const;
   std::unordered_map<ChunkKey, std::unique_ptr<Chunk>> m_chunks;
+  void print_nb_chunks();
+  void delete_chunks(Camera cam, int unload_distance);
 
 private:
   World();

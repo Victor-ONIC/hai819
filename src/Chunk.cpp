@@ -10,6 +10,9 @@ Chunk::Chunk(int x, int z) {
   m_xz[0] = x * C::CHUNK_WIDTH;
   m_xz[1] = z * C::CHUNK_DEPTH;
 
+  //
+  renderable = false;
+
   // Counter face atomic set upGLuint atomicCounterBuffer;
   GLuint zero = 0;
   m_visibleFaceCounter = 0;
@@ -64,6 +67,10 @@ GLuint Chunk::get_counter_faces() {
   glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_bufferVisibleFaceCounter);
   glGetBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), &m_visibleFaceCounter);
   return m_visibleFaceCounter;
+}
+
+GLsync Chunk::get_fence(){
+    return m_fence;
 }
 
 void Chunk::print_counter_faces(){
@@ -178,10 +185,23 @@ void Chunk::genLowMemBuffer(){
 }
 
 Chunk::~Chunk() {
-  if (m_buffer_blocktype != 0) {
+  if (m_buffer_blocktype != 0)
     glDeleteBuffers(1, &m_buffer_blocktype);
-  }
-  if (m_vao_blocktype != 0) {
+  if (m_vao_blocktype != 0)
     glDeleteVertexArrays(1, &m_vao_blocktype);
-  }
+
+  if (m_tmp_buffer_faces != 0)
+    glDeleteBuffers(1, &m_tmp_buffer_faces);
+  if (m_buffer_faces != 0)
+    glDeleteBuffers(1, &m_buffer_faces);
+  if (m_vao_faces != 0)
+    glDeleteVertexArrays(1, &m_vao_faces);
+
+  if (m_visibleFaceCounter != 0)
+    glDeleteBuffers(1, &m_visibleFaceCounter);
+  if (m_bufferVisibleFaceCounter != 0)
+    glDeleteBuffers(1, &m_bufferVisibleFaceCounter);
+
+  if (m_fence)
+    glDeleteSync(m_fence);
 }
