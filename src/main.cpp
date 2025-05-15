@@ -27,6 +27,14 @@
 namespace C = Constants;
 namespace P = Param;
 
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+  //Camera *cam = static_cast<Camera *>(glfwGetWindowUserPointer(window));
+  //if(yoffset>0.0) cam->speed += 1.0;
+  std::cout << "scroll" << std::endl;
+}
+
+
 static inline void mouse_callback(GLFWwindow *window, double xpos,
                                   double ypos) {
   Camera *cam = static_cast<Camera *>(glfwGetWindowUserPointer(window));
@@ -112,6 +120,10 @@ static inline void update_chunk_state(Chunk *chunk, Camera cam) {
   }
 }
 
+static inline bool is_chunk_visible(Camera cam){
+
+}
+
 static inline void draw_chunks_below(Camera cam) {
   World &world = World::getInstance();
   ChunkBuilder chunkbuilder = ChunkBuilder();
@@ -131,7 +143,7 @@ static inline void draw_chunks_below(Camera cam) {
       }
     }
   }
-  world.delete_chunks(cam, 80.0);
+  world.delete_chunks(cam, 180.0);
   //world.print_nb_chunks();
 }
 
@@ -248,7 +260,7 @@ static inline void draw_cube_repere(Camera cam) {
   ShaderManager &shader_manager = ShaderManager::getInstance();
   std::shared_ptr<Shader> shader = shader_manager.getShader("cubeRepere");
   Cube c = Cube(shader);
-  c.setPosition(glm::vec3(0, 0, 0));
+  c.setPosition(cam.get_pos());
   c.draw(cam.get_proj(), cam.get_view());
   glBindVertexArray(0);
   shader->stop();
@@ -260,7 +272,7 @@ static inline void draw(Camera cam) {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  // draw_cube_repere(cam);
+  draw_cube_repere(cam);
   draw_chunks_below(cam);
 }
 
@@ -323,13 +335,14 @@ int main() {
   glViewport(0, 0, C::WINDOW_WIDTH, C::WINDOW_HEIGHT);
 
   Camera cam =
-  Camera(glm::vec3(0, 120, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  Camera(glm::vec3(0, 100, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
   //camera_settings(cam, 0.0);
   init(cam);
   auto lastTime = std::chrono::high_resolution_clock::now();
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetScrollCallback(window, scroll_callback);
   glfwSetCursorPosCallback(window, mouse_callback);
-  glfwSetWindowUserPointer(window, &cam);
+  glfwSetWindowUserPointer(window, &cam);//Pour donner la caméra à une fonction callback
 
   while (glfwGetKey(window, GLFW_KEY_L) != GLFW_PRESS &&
          glfwWindowShouldClose(window) == 0) {

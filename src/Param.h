@@ -2,8 +2,9 @@
 #define PARAM_HPP
 
 namespace Param {
-    int minit = -8;
-    int maxit = 9;
+    int minit = -13;
+    int maxit = 12;
+    float max_distance_render = 1000.0;
 } // namespace Param
 
 #endif

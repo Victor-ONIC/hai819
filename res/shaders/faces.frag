@@ -23,8 +23,8 @@ void main(void) {
     vec4 viewSpacePos = view * vsoPos;
     float dist = abs(viewSpacePos.z);
     vec3 fogColor = vec3(0.3, 0.4, 0.8);
-    float fogNear = 900.0;
-    float fogFar  = 1200.0;
+    float fogNear = 600.0;
+    float fogFar  = 800.0;
     float fogFactor = clamp((fogFar - dist) / (fogFar - fogNear), 0.0, 1.0);
     //spec
     vec4 Lpv = view * Lp;
@@ -51,6 +51,7 @@ void main(void) {
         texColor = texture(grass_tex, fragTexCoord);
         fragColor = vec4((phongIL * texColor.rgb), 1.0);
     }
+
     // Mélange entre la couleur du fragment et la couleur du brouillard
     vec3 finalColor = mix(fogColor, fragColor.rgb, fogFactor);
     fragColor = vec4(finalColor, fragColor.a);
