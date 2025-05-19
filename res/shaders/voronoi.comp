@@ -1,6 +1,5 @@
 #version 460
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
-//layout(local_size_x = 8, local_size_y = 8) in;
 
 layout(std430, binding = 0) buffer BlockData {
     uint data[]; // Le tableau de données
@@ -31,9 +30,11 @@ vec2 voronoiSite(ivec2 cell) {
     return vec2(cell) * cell_size + vec2(hash12(cell), hash12(cell + ivec2(7, 3))) * cell_size;
 }
 
-// Retourne un ID unique par cellule
-uint cellID(ivec2 cell) {
-    return uint(cell.x * 92837111 ^ cell.y * 689287499 ^ u_seed);
+uint cellID(ivec2 p) {
+    uint h = uint(p.x) * 374761393u + uint(p.y) * 668265263u + uint(u_seed);
+    h = (h ^ (h >> 13)) * 1274126177u;
+    h ^= (h >> 16);
+    return h;
 }
 
 // Fonction pour convertir (x, y, z) en un index 1D
@@ -42,44 +43,13 @@ uint index3DTo1D(uint x, uint y, uint z, uint width, uint height) {
 }
 
 void main() {
-    /*
-    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
-    if (gid.x >= map_width || gid.y >= map_depth) return;
-
-    vec2 world_pos = vec2(gid) + 0.5;
-
-    float min_dist = 1e9;
-    uint closest_id = 0u;
-
-    ivec2 cell_coord = ivec2(floor(world_pos / cell_size));
-    for (int j = -1; j <= 1; ++j) {
-        for (int i = -1; i <= 1; ++i) {
-            ivec2 neighbor = cell_coord + ivec2(i, j);
-            vec2 site_pos = voronoiSite(neighbor);
-            float d = distance(world_pos, site_pos);
-            if (d < min_dist) {
-                min_dist = d;
-                closest_id = cellID(neighbor);
-            }
-        }
-    }
-
-    uint index = gid.y * map_depth + gid.x;
-    data[index] = closest_id;
-    */
-
     ivec3 id = ivec3(gl_GlobalInvocationID.xyz);
     uvec3 global_id = gl_GlobalInvocationID.xyz;
     uint id1D = index3DTo1D(id.x, id.y, id.z, map_width, map_height);
     int gx = int(global_id.x) + chunk_x;
     int gz = int(global_id.z) + chunk_z;
-    vec2 pos = vec2(gx, gz) * 0.004;
-
-    /////////////////////////
-    //ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
-    //if (gid.x >= map_width || gid.y >= map_depth) return;
-
-    vec2 world_pos = pos + 0.5;
+    vec2 pos = vec2(gx, gz);
+    vec2 world_pos = pos + vec2(0.5);
 
     float min_dist = 1e9;
     uint closest_id = 0u;
@@ -90,7 +60,7 @@ void main() {
             ivec2 neighbor = cell_coord + ivec2(i, j);
             vec2 site_pos = voronoiSite(neighbor);
             float d = distance(world_pos, site_pos);
-            if (d < min_dist) {
+            if (d <= min_dist) {
                 min_dist = d;
                 closest_id = cellID(neighbor);
             }

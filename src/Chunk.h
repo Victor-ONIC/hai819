@@ -25,7 +25,6 @@ public:
   glm::ivec2 get_xz();
   GLuint get_blocktype_buffer();
   GLuint get_faces_buffer();
-  GLuint get_vao_blocktype();
   GLuint get_counter_faces();
   void print_counter_faces();
   void print_faces();
@@ -39,7 +38,7 @@ public:
 
 private:
   glm::ivec2 m_xz;
-  GLuint m_buffer_blocktype, m_vao_blocktype; // SSBO et VAO reliés, 1 GLuint par bloc pour représenter son type
+  GLuint m_buffer_blocktype; // SSBO, 1 GLuint par bloc pour représenter son type
   GLuint m_tmp_buffer_faces, m_buffer_faces, m_vao_faces; // SSBO et VAO reliés, faces visibles des blocs
   GLuint m_visibleFaceCounter, m_bufferVisibleFaceCounter; // counter face visible + id buffer
 };

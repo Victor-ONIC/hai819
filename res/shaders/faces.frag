@@ -51,6 +51,14 @@ void main(void) {
         texColor = texture(grass_tex, fragTexCoord);
         fragColor = vec4((phongIL * texColor.rgb), 1.0);
     }
+    else if(fragBlockType == 4){
+        texColor = vec4(1.0);
+        fragColor = vec4((phongIL * texColor.rgb), 1.0);
+    }
+    else if(fragBlockType == 5){
+        texColor = vec4(0.0);
+        fragColor = vec4((phongIL * texColor.rgb), 1.0);
+    }
     // Mélange entre la couleur du fragment et la couleur du brouillard
     vec3 finalColor = mix(fogColor, fragColor.rgb, fogFactor);
     fragColor = vec4(finalColor, fragColor.a);

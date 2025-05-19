@@ -30,17 +30,6 @@ Chunk::Chunk(int x, int z) {
   glBufferData(GL_SHADER_STORAGE_BUFFER, C::BLOCKS_PER_CHUNK * sizeof(GLuint),
                nullptr, GL_DYNAMIC_DRAW);
 
-  //  Creation du VAO correspondant au buffer SSBO blocktype
-  glGenVertexArrays(1, &m_vao_blocktype);
-  glBindVertexArray(m_vao_blocktype);
-  glEnableVertexAttribArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, m_buffer_blocktype);
-  glBufferData(GL_ARRAY_BUFFER, C::BLOCKS_PER_CHUNK * sizeof(GLuint),
-               // m_data.data(), GL_DYNAMIC_DRAW);
-               nullptr, GL_DYNAMIC_DRAW);
-  glVertexAttribPointer(0, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(GLuint),
-                        (const void *)0);
-
   //  Creation du buffer SSBO faces
   glGenBuffers(1, &m_tmp_buffer_faces);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_tmp_buffer_faces);
@@ -55,7 +44,6 @@ glm::ivec2 Chunk::get_xz(){ return m_xz; }
 GLuint Chunk::get_blocktype_buffer() { return m_buffer_blocktype; }
 GLuint Chunk::get_faces_buffer() { return m_tmp_buffer_faces; }
 GLuint Chunk::get_buffer_counter_faces() { return m_bufferVisibleFaceCounter; }
-GLuint Chunk::get_vao_blocktype() { return m_vao_blocktype; }
 GLuint Chunk::get_vao_faces() { return m_vao_faces; }
 
 void Chunk::reset_counter_faces(){
@@ -182,26 +170,22 @@ void Chunk::genLowMemBuffer(){
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
   // Libère le buffer temporaire
   glDeleteBuffers(1, &m_tmp_buffer_faces);
+  glDeleteBuffers(1, &(m_buffer_blocktype));
 }
 
 Chunk::~Chunk() {
   if (m_buffer_blocktype != 0)
     glDeleteBuffers(1, &m_buffer_blocktype);
-  if (m_vao_blocktype != 0)
-    glDeleteVertexArrays(1, &m_vao_blocktype);
-
   if (m_tmp_buffer_faces != 0)
     glDeleteBuffers(1, &m_tmp_buffer_faces);
   if (m_buffer_faces != 0)
     glDeleteBuffers(1, &m_buffer_faces);
   if (m_vao_faces != 0)
     glDeleteVertexArrays(1, &m_vao_faces);
-
   if (m_visibleFaceCounter != 0)
     glDeleteBuffers(1, &m_visibleFaceCounter);
   if (m_bufferVisibleFaceCounter != 0)
     glDeleteBuffers(1, &m_bufferVisibleFaceCounter);
-
   if (m_fence)
     glDeleteSync(m_fence);
 }
