@@ -87,7 +87,7 @@ void main()
     uvec3 global_id = gl_GlobalInvocationID.xyz;
     int nb_octaves = 15;
     float persistence = 0.5;
-    float zoom = 0.70;
+    float zoom = 1.20;
     int gx = int(global_id.x) + chunk_x;
     int gz = int(global_id.z) + chunk_z;
     vec2 pos = vec2(gx, gz) * 0.004;
