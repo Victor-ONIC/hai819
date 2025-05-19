@@ -197,6 +197,19 @@ static inline void init(Camera cam) {
                          C::CHUNK_DEPTH / 8);
   shader->stop();
 
+  // Compute Shader - Map Compute Voronoi
+  shader_manager.loadShader("mapComputeVoronoi", "../res/shaders/voronoi.comp");
+  shader = shader_manager.getShader("mapComputeVoronoi");
+  shader->use();
+  shader->set_uniform("u_seed", generate_seed());
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  shader->set_num_groups(C::CHUNK_WIDTH / 8, C::CHUNK_HEIGHT / 8,
+                         C::CHUNK_DEPTH / 8);
+  shader->set_uniform("cell_size", 1.0);
+  shader->stop();
+
   // Compute Shader - Gen Vertices
   shader_manager.loadShader("genVertices", "../res/shaders/gen_vertices.comp");
   shader = shader_manager.getShader("genVertices");
