@@ -207,7 +207,7 @@ static inline void init(Camera cam) {
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
   shader->set_num_groups(C::CHUNK_WIDTH / 8, C::CHUNK_HEIGHT / 8,
                          C::CHUNK_DEPTH / 8);
-  shader->set_uniform("cell_size", 512.0);
+  shader->set_uniform("cell_size", 520.0);
   shader->stop();
 
   // Compute Shader - Gen Vertices

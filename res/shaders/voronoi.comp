@@ -1,4 +1,6 @@
 #version 460
+#define M_PI 3.1415926535897932384626433832795
+
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
 layout(std430, binding = 0) buffer BlockData {
@@ -11,8 +13,12 @@ uniform int chunk_z;
 uniform int map_width;
 uniform int map_height;
 uniform int map_depth;
-//
 uniform float cell_size; // taille d'une cellule Voronoï
+
+struct PerlinResult {
+    float value;
+    vec2 gradient;
+};
 
 uvec2 index2Dto1D(ivec2 coord, int width) {
     return uvec2(coord.y * width + coord.x, 0);
@@ -42,15 +48,92 @@ uint index3DTo1D(uint x, uint y, uint z, uint width, uint height) {
     return x + y * width + z * (width * height);
 }
 
+float fade(float t) {
+  return t*t*t*(t*(t*6.0-15.0)+10.0); // Improved fade, yields C2-continuous noise
+}
+
+float hash(int x, int y) {
+    // Hash basé sur un mélange de bits
+    int n = x * 374761393 + y * 668265263 + u_seed * 982451653; // nombres premiers
+    n = (n ^ (n >> 13)) * 1274126177;
+    return float((n ^ (n >> 16)) & 0x7fffffff) / float(0x7fffffff);
+}
+
+vec2 gradient(int x, int y) {
+    float angle = hash(x, y) * 2 * M_PI;
+    return vec2(cos(angle), sin(angle));
+}
+
+PerlinResult perlin_with_gradient(vec2 pos) {
+    ivec2 p0 = ivec2(floor(pos));
+    vec2 f = fract(pos);
+
+    vec2 g00 = gradient(p0.x,     p0.y);
+    vec2 g10 = gradient(p0.x + 1, p0.y);
+    vec2 g01 = gradient(p0.x,     p0.y + 1);
+    vec2 g11 = gradient(p0.x + 1, p0.y + 1);
+
+    vec2 d00 = f - vec2(0.0, 0.0);
+    vec2 d10 = f - vec2(1.0, 0.0);
+    vec2 d01 = f - vec2(0.0, 1.0);
+    vec2 d11 = f - vec2(1.0, 1.0);
+
+    float v00 = dot(g00, d00);
+    float v10 = dot(g10, d10);
+    float v01 = dot(g01, d01);
+    float v11 = dot(g11, d11);
+
+    vec2 u = vec2(fade(f.x), fade(f.y));
+    vec2 du = vec2(30.0 * f.x*f.x * (f.x - 1.0) * (f.x - 1.0),
+                   30.0 * f.y*f.y * (f.y - 1.0) * (f.y - 1.0));
+
+    float nx0 = mix(v00, v10, u.x);
+    float nx1 = mix(v01, v11, u.x);
+    float n = mix(nx0, nx1, u.y);
+
+    // Gradient via la dérivée de l’interpolation
+    vec2 dnoise_dxdy;
+    dnoise_dxdy.x =
+        mix(dot(g10, d10) - dot(g00, d00), dot(g11, d11) - dot(g01, d01), u.y) * du.x;
+    dnoise_dxdy.y =
+        mix(dot(g01, d01) - dot(g00, d00), dot(g11, d11) - dot(g10, d10), u.x) * du.y;
+
+    return PerlinResult(n, dnoise_dxdy);
+}
+
+PerlinResult perlin_octaves(vec2 pos, int nb_octaves, float persistence, float zoom) {
+    float total = 0.0;
+    float amplitude = 1.0;
+    float frequency = 1.0;
+    float maxValue = 0.0; // pour normaliser
+    PerlinResult result, tmp;
+    result.value = 0.0;
+    result.gradient = vec2(0.0);
+    for (int i = 0; i < nb_octaves; ++i) {
+        tmp = perlin_with_gradient(zoom * pos * frequency);
+        result.value += tmp.value * amplitude;
+        result.gradient += tmp.gradient * amplitude;
+        maxValue += amplitude;
+        amplitude *= persistence; // exemple : 0.5
+        frequency *= 2.0;
+    }
+    return result;
+}
+
 void main() {
+    PerlinResult noise;
+    int nb_octaves = 3;
+    float persistence = 0.5;
+    float zoom = 0.01;
     ivec3 id = ivec3(gl_GlobalInvocationID.xyz);
     uvec3 global_id = gl_GlobalInvocationID.xyz;
     uint id1D = index3DTo1D(id.x, id.y, id.z, map_width, map_height);
     int gx = int(global_id.x) + chunk_x;
     int gz = int(global_id.z) + chunk_z;
     vec2 pos = vec2(gx, gz);
+    noise = perlin_octaves(pos, nb_octaves, persistence, zoom);
+    pos += noise.gradient * 40.0;
     vec2 world_pos = pos + vec2(0.5);
-
     float min_dist = 1e9;
     uint closest_id = 0u;
 
@@ -67,5 +150,6 @@ void main() {
         }
     }
 
-    data[id1D] = 1 + closest_id % 3;
+
+    data[id1D] = 2 + closest_id % 4;
 }

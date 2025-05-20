@@ -23,8 +23,8 @@ void main(void) {
     vec4 viewSpacePos = view * vsoPos;
     float dist = abs(viewSpacePos.z);
     vec3 fogColor = vec3(0.3, 0.4, 0.8);
-    float fogNear = 900.0;
-    float fogFar  = 1200.0;
+    float fogNear = 1900.0;
+    float fogFar  = 11200.0;
     float fogFactor = clamp((fogFar - dist) / (fogFar - fogNear), 0.0, 1.0);
     //spec
     vec4 Lpv = view * Lp;
