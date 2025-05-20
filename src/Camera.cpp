@@ -37,6 +37,8 @@ void Camera::process_keyboard(GLFWwindow* window, float deltaTime) {
         m_pos += up * (velocity * 1.5f);
     if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
         m_pos -= up * (velocity * 1.5f);
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+        Param::show_imgui = !Param::show_imgui;;
     update_vectors();
 }
 

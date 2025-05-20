@@ -2,8 +2,9 @@
 #define PARAM_HPP
 
 namespace Param {
-    int minit = -11;
-    int maxit = -minit + 1;
+    extern int minit;
+    extern int maxit;
+    extern bool show_imgui;
 } // namespace Param
 
 #endif

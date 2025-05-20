@@ -23,6 +23,9 @@
 #include <math.h>
 #include <random>
 #include <vector>
+#include <imgui.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_glfw.h>
 
 namespace C = Constants;
 namespace P = Param;
@@ -291,6 +294,11 @@ static inline void tick_chunkbuilder(Camera cam) {
   }
 }
 
+// Params
+int P::minit = -2;
+int P::maxit = 2;
+bool P::show_imgui = false;
+
 int main() {
   static float deltaTime = 0.0;
   static float lastFrame = 0.0;
@@ -331,8 +339,26 @@ int main() {
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetWindowUserPointer(window, &cam);
 
+  // ImGUI Setup
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+
+  const char* glsl_version = "#version 330 core"; // Adjust if using older/newer GLSL
+  ImGui_ImplGlfw_InitForOpenGL(window, true);     // true: install callbacks
+  ImGui_ImplOpenGL3_Init(glsl_version);
+
   while (glfwGetKey(window, GLFW_KEY_L) != GLFW_PRESS &&
          glfwWindowShouldClose(window) == 0) {
+
+    // ImGUI
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    if (P::show_imgui) {
+      ImGui::ShowDemoWindow(&P::show_imgui);
+    }
+
     auto currentTime = std::chrono::high_resolution_clock::now();
     float dt = std::chrono::duration<float>(currentTime - lastTime).count();
     float currentFrame = glfwGetTime();
@@ -342,9 +368,18 @@ int main() {
     cam.process_keyboard(window, deltaTime);
     tick_chunkbuilder(cam);
     draw(cam);
+
+    // Draw ImGUI
+    ImGui::Render(); // Gathers ImGui draw data
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); // Renders it
+
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
+
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
 
   glfwTerminate();
   return 0;

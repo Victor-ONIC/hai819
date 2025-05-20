@@ -11,11 +11,28 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
 
 if (WIN32)  # Windows
 
+set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui)
+file(GLOB IMGUI_SRC CONFIGURE_DEPENDS
+    ${IMGUI_DIR}/imgui*.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
+    ${IMGUI_DIR}/backends/imgui_demo.cpp
+)
+add_library(imgui
+    ${IMGUI_SRC}
+)
+target_include_directories(imgui PUBLIC
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/backends
+)
+
 include_directories(
     vendor/GLFW/include
     vendor/GLEW/include
     vendor/stb_image
     vendor/GLM
+    vendor/imgui
+    vendor/imgui/backends
 )
 
 link_directories(
@@ -24,7 +41,7 @@ link_directories(
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} glfw3 glew32s opengl32)
+target_link_libraries(${PROJECT_NAME} glfw3 glew32s opengl32 imgui)
 add_compile_definitions(GLEW_STATIC)
 
 else()  # Linux
