@@ -132,7 +132,7 @@ void main() {
     int gz = int(global_id.z) + chunk_z;
     vec2 pos = vec2(gx, gz);
     noise = perlin_octaves(pos, nb_octaves, persistence, zoom);
-    pos += noise.gradient * 40.0;
+    pos += noise.gradient * 30.0;
     vec2 world_pos = pos + vec2(0.5);
     float min_dist = 1e9;
     uint closest_id = 0u;
@@ -150,6 +150,10 @@ void main() {
         }
     }
 
-
-    data[id1D] = 2 + closest_id % 4;
+    //data[id1D] = 4 + closest_id % 2;
+    float val;
+    val = 1.0;
+    if((closest_id % 2) == 1) val = 3.0;
+    //data[id1D] = floatBitsToUint(val);
+    data[id1D] = floatBitsToUint(min_dist/cell_size);
 }

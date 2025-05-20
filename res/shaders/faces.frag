@@ -18,6 +18,14 @@ uniform mat4 proj;
 uniform ivec2 offset;
 uniform vec3 cam;
 
+vec4 asFloatVec4(uint val) {
+    return vec4(float(val), 0.0, 0.0, 0.0);
+}
+
+float reinterpretUIntAsFloat(uint val) {
+    return uintBitsToFloat(val);
+}
+
 void main(void) {
     //fog
     vec4 viewSpacePos = view * vsoPos;
@@ -39,6 +47,12 @@ void main(void) {
   float phongIL = clamp(dot(-Ld, fragNormal), 0.0, 1.0);
   phongIL = phongIL * 0.8 + specular + 0.3;
 
+    float val = uintBitsToFloat(fragBlockType);
+    //if(val < 2.0){val = 0.0;}
+    //else{val = 1.0;}
+    texColor = vec4(val);
+    fragColor = vec4((phongIL * texColor.rgb), 1.0);
+    return;
     if(fragBlockType == 1){
         texColor = texture(cobble_tex, fragTexCoord);
         fragColor = vec4((phongIL * texColor.rgb), 1.0);
