@@ -26,17 +26,17 @@ void Camera::update_vectors() {
 void Camera::process_keyboard(GLFWwindow* window, float deltaTime) {
     float velocity = speed * deltaTime * 2.0;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        m_pos += front * velocity;
+        m_pos += glm::vec3(front[0], 0.0, front[2]) * velocity;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        m_pos -= front * velocity;
+        m_pos -= glm::vec3(front[0], 0.0, front[2]) * velocity;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        m_pos -= right * velocity;
+        m_pos -= glm::vec3(right[0], 0.0, right[2]) * velocity;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        m_pos += right * velocity;
+        m_pos += glm::vec3(right[0], 0.0, right[2]) * velocity;
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        m_pos += up * (velocity * 1.5f);
+        m_pos += glm::vec3(0.0, 1.0, 0.0) * (velocity * 1.5f);
     if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
-        m_pos -= up * (velocity * 1.5f);
+        m_pos -= glm::vec3(0.0, 1.0, 0.0) * (velocity * 1.5f);
     update_vectors();
 }
 

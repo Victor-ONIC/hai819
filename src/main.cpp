@@ -78,9 +78,18 @@ static inline void draw_chunk_faces(Chunk *chunk, Camera cam) {
   texture->bind(1);
   texture = texture_manager.getTexture("cobble_tex");
   texture->bind(2);
+  texture = texture_manager.getTexture("bedrock_tex");
+  texture->bind(3);
+  texture = texture_manager.getTexture("lava_tex");
+  texture->bind(4);
+  texture = texture_manager.getTexture("sand_tex");
+  texture->bind(5);
   shader->set_uniform("grass_tex", 0);
   shader->set_uniform("water_tex", 1);
   shader->set_uniform("cobble_tex", 2);
+  shader->set_uniform("bedrock_tex", 3);
+  shader->set_uniform("lava_tex", 4);
+  shader->set_uniform("sand_tex", 5);
   mvp = cam.get_proj() * cam.get_view();
   glBindVertexArray(chunk->get_vao_faces()); // Associer VAO
   shader->set_uniform("Lp", light_pos);
@@ -161,6 +170,7 @@ static inline void init(Camera cam) {
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
   shader->set_num_groups(C::CHUNK_WIDTH / 8, C::CHUNK_HEIGHT / 8,
                          C::CHUNK_DEPTH / 8);
+  shader->set_uniform("cell_size", C::CELL_SIZE);
   shader->stop();
 
   // Compute Shader - Map Compute 3D
@@ -207,7 +217,20 @@ static inline void init(Camera cam) {
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
   shader->set_num_groups(C::CHUNK_WIDTH / 8, C::CHUNK_HEIGHT / 8,
                          C::CHUNK_DEPTH / 8);
-  shader->set_uniform("cell_size", 520.0);
+  shader->set_uniform("cell_size", C::CELL_SIZE);
+  shader->stop();
+
+  // Compute Shader - Map Compute Biomes
+  shader_manager.loadShader("mapComputeBiomes", "../res/shaders/biomes.comp");
+  shader = shader_manager.getShader("mapComputeBiomes");
+  shader->use();
+  shader->set_uniform("u_seed", generate_seed());
+  shader->set_uniform("map_width", C::CHUNK_WIDTH);
+  shader->set_uniform("map_height", C::CHUNK_HEIGHT);
+  shader->set_uniform("map_depth", C::CHUNK_DEPTH);
+  shader->set_num_groups(C::CHUNK_WIDTH / 8, C::CHUNK_HEIGHT / 8,
+                         C::CHUNK_DEPTH / 8);
+  shader->set_uniform("cell_size", C::CELL_SIZE);
   shader->stop();
 
   // Compute Shader - Gen Vertices
@@ -233,11 +256,12 @@ static inline void init(Camera cam) {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  //texture_manager.loadTexture("grass_tex", "../res/textures/grass.jpg");
-  //texture_manager.loadTexture("water_tex", "../res/textures/water.jpg");
-  texture_manager.loadTexture("grass_tex", "../res/textures/bedrock.jpg");
-  texture_manager.loadTexture("water_tex", "../res/textures/lava.jpg");
+  texture_manager.loadTexture("grass_tex", "../res/textures/grass.jpg");
+  texture_manager.loadTexture("water_tex", "../res/textures/water.jpg");
   texture_manager.loadTexture("cobble_tex", "../res/textures/cobble.jpg");
+  texture_manager.loadTexture("bedrock_tex", "../res/textures/bedrock.jpg");
+  texture_manager.loadTexture("lava_tex", "../res/textures/lava.jpg");
+  texture_manager.loadTexture("sand_tex", "../res/textures/sand.jpg");
 
   // Cube Repère Shader
   shader_manager.loadShader("cubeRepere", "../res/shaders/cube_repere.vert",
@@ -346,7 +370,7 @@ int main() {
   glViewport(0, 0, C::WINDOW_WIDTH, C::WINDOW_HEIGHT);
 
   Camera cam =
-  Camera(glm::vec3(0, 120, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  Camera(glm::vec3(0, 320, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
   //camera_settings(cam, 0.0);
   init(cam);
   auto lastTime = std::chrono::high_resolution_clock::now();

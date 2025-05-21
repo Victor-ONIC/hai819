@@ -2,6 +2,7 @@
 #define M_PI 3.1415926535897932384626433832795
 #define EPSI 0.001
 #define NBCELL 9
+#define NBBLUR 9
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
@@ -242,13 +243,13 @@ void main() {
     float total_weight = 0.0;
     float p = 6;
 
-    for (int i = 0; i < NBCELL; ++i) {
-        //float w = 1.0 / (bi.dist[i] + EPSI);
+    for (int i = 0; i < NBBLUR; ++i) {
         float w = 1.0 / pow(bi.dist[i] + EPSI, p); // avec p ∈ [1.5, 3.0] typiquement
         total_weight += w;
 
         float biome_data = float(bi.id[i] % 2); // ou toute autre fonction
         sum9 += biome_data * w;
+        //break;
     }
 
     float blended_biome = sum9 / total_weight;
