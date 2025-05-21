@@ -370,7 +370,7 @@ int main() {
   glViewport(0, 0, C::WINDOW_WIDTH, C::WINDOW_HEIGHT);
 
   Camera cam =
-  Camera(glm::vec3(0, 320, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  Camera(glm::vec3(0, 620, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
   //camera_settings(cam, 0.0);
   init(cam);
   auto lastTime = std::chrono::high_resolution_clock::now();
