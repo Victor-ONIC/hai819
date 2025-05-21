@@ -111,14 +111,14 @@ Collision Camera::collide() {
         GLuint u = blocks[block_index(chunk_x, chunk_y + 1, chunk_z)];
         if (u != 0) {
             res.y_pos = true;
-            std::cout << "Collision up" << std::endl;
+            // std::cout << "Collision up" << std::endl;
         }
 
         // y_neg
         GLuint d = blocks[block_index(chunk_x, chunk_y - 2, chunk_z)];
         if (d != 0) {
             res.y_neg = true;
-            std::cout << "Collision down" << std::endl;
+            // std::cout << "Collision down" << std::endl;
         }
 
         // x_pos
@@ -126,7 +126,7 @@ Collision Camera::collide() {
         GLuint xp2 = blocks[block_index(chunk_x + 1, chunk_y, chunk_z)];
         if (xp1 != 0 || xp2 != 0) {
             res.x_pos = true;
-            std::cout << "Collision x+" << std::endl;
+            // std::cout << "Collision x+" << std::endl;
         }
 
         // x_neg
@@ -134,7 +134,7 @@ Collision Camera::collide() {
         GLuint xn2 = blocks[block_index(chunk_x - 1, chunk_y, chunk_z)];
         if (xp1 != 0 || xp2 != 0) {
             res.x_neg = true;
-            std::cout << "Collision x-" << std::endl;
+            // std::cout << "Collision x-" << std::endl;
         }
 
         // z_pos
@@ -142,7 +142,7 @@ Collision Camera::collide() {
         GLuint zp2 = blocks[block_index(chunk_x, chunk_y, chunk_z + 1)];
         if (zp1 != 0 || zp2 != 0) {
             res.z_pos = true;
-            std::cout << "Collision z+" << std::endl;
+            // std::cout << "Collision z+" << std::endl;
         }
 
         // z_neg
@@ -150,7 +150,7 @@ Collision Camera::collide() {
         GLuint zn2 = blocks[block_index(chunk_x, chunk_y, chunk_z - 1)];
         if (zn1 != 0 || zn2 != 0) {
             res.z_neg = true;
-            std::cout << "Collision z-" << std::endl;
+            // std::cout << "Collision z-" << std::endl;
         }
     }
 
