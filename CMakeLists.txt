@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 set(OpenGL_GL_PREFERENCE LEGACY)
 
 project(mc)
+add_compile_definitions(GLEW_STATIC)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS 
     ${CMAKE_SOURCE_DIR}/src/*.cpp 
@@ -25,7 +26,6 @@ link_directories(
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} glfw3 glew32s opengl32)
-add_compile_definitions(GLEW_STATIC)
 
 else()  # Linux
 

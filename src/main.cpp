@@ -286,7 +286,7 @@ static inline void tick_chunkbuilder(Camera cam) {
       if ((++i) > max_chunks_per_tick)
         break;
       chunkbuilder.build(chunk.get());
-      print_vram();
+      // print_vram();
     }
   }
 }
@@ -339,6 +339,7 @@ int main() {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     //camera_settings(cam, dt);
+    cam.update(deltaTime); 
     cam.process_keyboard(window, deltaTime);
     tick_chunkbuilder(cam);
     draw(cam);

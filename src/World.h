@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <vector>
 
+class Camera;
+
 class World {
 public:
   static World &getInstance() { //  Permet d'avoir une instance unique statique à la class

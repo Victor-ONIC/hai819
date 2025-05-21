@@ -47,7 +47,7 @@ void ChunkBuilder::build(Chunk *chunk) {
   //std::cout << "Fence ->       " << chunk->m_fence << std::endl;
   chunk->m_fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
   chunk->get_counter_faces();
-  chunk->print_counter_faces();
+  // chunk->print_counter_faces();
   // chunk->print_faces();
   chunk->genLowMemBuffer();
 }
