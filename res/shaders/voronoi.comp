@@ -1,5 +1,7 @@
 #version 460
 #define M_PI 3.1415926535897932384626433832795
+#define EPSI 0.001
+#define NBCELL 9
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
@@ -18,6 +20,18 @@ uniform float cell_size; // taille d'une cellule Voronoï
 struct PerlinResult {
     float value;
     vec2 gradient;
+};
+
+struct BiomesData {
+    uint id0;
+    uint id1;
+    float dist0;
+    float dist1;
+};
+
+struct BiomeInfluence9{
+    uint id[NBCELL];
+    float dist[NBCELL];
 };
 
 uvec2 index2Dto1D(ivec2 coord, int width) {
@@ -49,7 +63,7 @@ uint index3DTo1D(uint x, uint y, uint z, uint width, uint height) {
 }
 
 float fade(float t) {
-  return t*t*t*(t*(t*6.0-15.0)+10.0); // Improved fade, yields C2-continuous noise
+    return t*t*t*(t*(t*6.0-15.0)+10.0); // Improved fade, yields C2-continuous noise
 }
 
 float hash(int x, int y) {
@@ -120,7 +134,79 @@ PerlinResult perlin_octaves(vec2 pos, int nb_octaves, float persistence, float z
     return result;
 }
 
+BiomesData find_two_closest(vec2 world_pos) {
+    BiomesData result;
+    result.dist0 = 1e9;
+    result.dist1 = 1e9;
+    result.id0 = 0u;
+    result.id1 = 0u;
+
+    ivec2 cell_coord = ivec2(floor(world_pos / cell_size));
+    for (int j = -1; j <= 1; ++j) {
+        for (int i = -1; i <= 1; ++i) {
+            ivec2 neighbor = cell_coord + ivec2(i, j);
+            vec2 site_pos = voronoiSite(neighbor);
+            float d = distance(world_pos, site_pos);
+            uint id = cellID(neighbor);
+
+            if (d < result.dist0) {
+                // Décale l'ancien premier au second
+                result.dist1 = result.dist0;
+                result.id1 = result.id0;
+                // Nouveau premier
+                result.dist0 = d;
+                result.id0 = id;
+            } else if (d < result.dist1) {
+                result.dist1 = d;
+                result.id1 = id;
+            }
+        }
+    }
+
+    return result;
+}
+
+BiomeInfluence9 find_nine_closest(vec2 world_pos) {
+    BiomeInfluence9 result;
+    for (int i = 0; i < NBCELL; ++i) {
+        result.dist[i] = 1e9;
+        result.id[i] = 0u;
+    }
+
+    ivec2 cell_coord = ivec2(floor(world_pos / cell_size));
+    for (int j = -1; j <= 1; ++j) {
+        for (int i = -1; i <= 1; ++i) {
+            ivec2 neighbor = cell_coord + ivec2(i, j);
+            vec2 site_pos = voronoiSite(neighbor);
+            float d = distance(world_pos, site_pos);
+            uint id = cellID(neighbor);
+
+            // Trouver la position d'insertion dans le tableau trié
+            int insert_pos = NBCELL;
+            for (int k = 0; k < NBCELL; ++k) {
+                if (d < result.dist[k]) {
+                    insert_pos = k;
+                    break;
+                }
+            }
+
+            // Si dans le top 9, on insère en décalant
+            if (insert_pos < NBCELL) {
+                for (int k = 8; k > insert_pos; --k) {
+                    result.dist[k] = result.dist[k - 1];
+                    result.id[k] = result.id[k - 1];
+                }
+                result.dist[insert_pos] = d;
+                result.id[insert_pos] = id;
+            }
+        }
+    }
+
+    return result;
+}
+
 void main() {
+    BiomesData biomes;
     PerlinResult noise;
     int nb_octaves = 3;
     float persistence = 0.5;
@@ -150,10 +236,43 @@ void main() {
         }
     }
 
+
+    BiomeInfluence9 bi = find_nine_closest(world_pos);
+    float sum9 = 0.0;
+    float total_weight = 0.0;
+
+    for (int i = 0; i < NBCELL; ++i) {
+        float w = 1.0 / (bi.dist[i] + EPSI);
+        total_weight += w;
+
+        float biome_data = float(bi.id[i] % 2); // ou toute autre fonction
+        sum9 += biome_data * w;
+    }
+
+    float blended_biome = sum9 / total_weight;
+/////////////////////////////////////////////////////
+
+    biomes = find_two_closest(world_pos);
+
+    // Poids inverses des distances
+    float inv0 = 1.0 / (biomes.dist0 + EPSI); // évite div 0
+    float inv1 = 1.0 / (biomes.dist1 + EPSI);
+    float sum = inv0 + inv1;
+    float w0 = inv0 / sum;
+    float w1 = inv1 / sum;
+
+// Interpolation linéaire des IDs (dans ton cas, simple uint % 4)
+    float blended = w0 * float(biomes.id0 % 2u) + w1 * float(biomes.id1 % 2u);;
+    //if((biomes.id0 % 2u) == 0) blended = float(w1);
+    //else blended = float(w0);
+
+    //blended = float(biomes.id0 %2u * w0);
+
     //data[id1D] = 4 + closest_id % 2;
     float val;
-    val = 1.0;
-    if((closest_id % 2) == 1) val = 3.0;
+    float cellid = float(closest_id % 2);
+    val = min_dist/cell_size;
+    if((closest_id % 2) == 1) val *= -1;
     //data[id1D] = floatBitsToUint(val);
-    data[id1D] = floatBitsToUint(min_dist/cell_size);
+    data[id1D] = floatBitsToUint(blended_biome + EPSI);
 }
