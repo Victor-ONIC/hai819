@@ -1,8 +1,8 @@
 #version 460
 #define M_PI 3.1415926535897932384626433832795
 #define EPSI 0.001
-#define NBCELL 9
-#define NBBLUR 9
+#define NBCELL 4
+#define NBBLUR 3
 #define POW 9.0
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
