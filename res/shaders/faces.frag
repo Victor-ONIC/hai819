@@ -30,9 +30,10 @@ void main(void) {
     //fog
     vec4 viewSpacePos = view * vsoPos;
     float dist = abs(viewSpacePos.z);
+    //vec3 fogColor = vec3(0.5, 0.6, 0.8);
     vec3 fogColor = vec3(0.3, 0.4, 0.8);
-    float fogNear = 1900.0;
-    float fogFar  = 11200.0;
+    float fogNear = 500.0;
+    float fogFar  = 800.0;
     float fogFactor = clamp((fogFar - dist) / (fogFar - fogNear), 0.0, 1.0);
     //spec
     vec4 Lpv = view * Lp;
@@ -52,7 +53,8 @@ void main(void) {
     //else{val = 1.0;}
     texColor = vec4(val);
     fragColor = vec4((phongIL * texColor.rgb), 1.0);
-    return;
+    //return;
+
     if(fragBlockType == 1){
         texColor = texture(cobble_tex, fragTexCoord);
         fragColor = vec4((phongIL * texColor.rgb), 1.0);

@@ -25,5 +25,5 @@ void main()
     uint id1D = index3DTo1D(id.x, id.y, id.z, map_width, map_height);
     vec3 ind3D = normalize_id(id, map_width, map_height, map_depth);
 
-    if(data[id1D] == 0 && ind3D.y < 0.15) data[id1D] = 2;
+    if(data[id1D] == 0 && ind3D.y < 0.45) data[id1D] = 2;
 }

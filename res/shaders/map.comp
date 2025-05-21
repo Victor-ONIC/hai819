@@ -35,7 +35,7 @@ vec2 gradient(int x, int y) {
     return vec2(cos(angle), sin(angle));
 }
 
-PerlinResult perlin_with_gradient(vec2 pos) {
+PerlinResult perlin_with_gradient(vec2 pos, float coef_pow, int bool_pow) {
     ivec2 p0 = ivec2(floor(pos));
     vec2 f = fract(pos);
 
@@ -61,6 +61,7 @@ PerlinResult perlin_with_gradient(vec2 pos) {
     float nx0 = mix(v00, v10, u.x);
     float nx1 = mix(v01, v11, u.x);
     float n = mix(nx0, nx1, u.y);
+    if(bool_pow == 1) n = pow(abs(n), coef_pow); // Réduit les zones plates
 
     // Gradient via la dérivée de l’interpolation
     vec2 dnoise_dxdy;
@@ -102,12 +103,18 @@ vec3 normalize_id(ivec3 id, uint width, uint height, uint depth){
 }
 
 uint compute_2D(float noise, float ground_height, float ind3D_y){
+
+    /*
     if(((noise * 0.75) + ground_height) > ind3D_y) return 1;
+    return 0;
+    */
+    noise = 1.0 - noise;
+    if(noise > ind3D_y) return 1;
     return 0;
 }
 
 
-float perlin_octaves(vec2 pos, int nb_octaves, float persistence, float zoom) {
+float perlin_octaves(vec2 pos, int nb_octaves, float persistence, float zoom, float coef_pow, int bool_pow) {
 
     /*
 PerlinResult result = perlin_with_gradient(pos * zoom);
@@ -123,7 +130,7 @@ vec2 grad = result.gradient;
     float maxValue = 0.0; // pour normaliser
     for (int i = 0; i < nb_octaves; ++i) {
         //total += perlin(zoom * pos * frequency) * amplitude;
-        tmp = perlin_with_gradient(zoom * pos * frequency);
+        tmp = perlin_with_gradient(zoom * pos * frequency, coef_pow, bool_pow);
         result.value += tmp.value * amplitude;
         maxValue += amplitude;
         amplitude *= persistence; // exemple : 0.5
@@ -137,15 +144,17 @@ void main()
     ivec3 id = ivec3(gl_GlobalInvocationID.xyz);
     uint id1D = index3DTo1D(id.x, id.y, id.z, map_width, map_height);
     vec3 ind3D = normalize_id(id, map_width, map_height, map_depth);
-    float ground_height = 0.25;//Permet d'avoir un sous-sol
+    float ground_height = 0.0;//Permet d'avoir un sous-sol
     uvec3 global_id = gl_GlobalInvocationID.xyz;
-    int nb_octaves = 15;
+    int nb_octaves = 9;
     float persistence = 0.5;
-    float zoom = 1.20;
+    float zoom = 0.30;
+    float coef_pow = 0.40;
+    int bool_pow = 1;
     int gx = int(global_id.x) + chunk_x;
     int gz = int(global_id.z) + chunk_z;
     vec2 pos = vec2(gx, gz) * 0.004;
-    float value = perlin_octaves(pos, nb_octaves, persistence, zoom);
+    float value = perlin_octaves(pos, nb_octaves, persistence, zoom, coef_pow, bool_pow);
     data[id1D] = 0;
     data[id1D] = compute_2D(value, ground_height, ind3D.y);
 }

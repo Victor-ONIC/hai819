@@ -30,7 +30,7 @@ public:
   glm::mat4 get_view();
   glm::mat4 get_proj();
   float yaw = -90.0f;
-  float pitch = 0.0f;
+  float pitch = -25.0f;
   float lastX = 960.0f, lastY = 540.0f;
   bool firstMouse = true;
   float speed = 50.0f;

@@ -22,7 +22,7 @@ constexpr int WINDOW_HEIGHT = 1080;
 //constexpr int CHUNK_DEPTH = 32;
 
 constexpr int CHUNK_WIDTH = 64;
-constexpr int CHUNK_HEIGHT = 64;
+//constexpr int CHUNK_HEIGHT = 64;
 constexpr int CHUNK_DEPTH = 64;
 
 
@@ -31,7 +31,7 @@ constexpr int CHUNK_DEPTH = 64;
 //constexpr int CHUNK_DEPTH = 128;
 
 //constexpr int CHUNK_WIDTH = 256;
-//constexpr int CHUNK_HEIGHT = 256;
+constexpr int CHUNK_HEIGHT = 256;
 //constexpr int CHUNK_DEPTH = 256;
 
 //constexpr int CHUNK_WIDTH = 320;
@@ -72,7 +72,6 @@ struct face {
     glm::vec4 vert[4];             // 64 octets
     glm::vec4 normal;              // 16 octets
     glm::vec2 coord_tex[4];        // 32 octets
-                                   // -> 64 + 16 + 4 + 12 + 8 + 4 == 128 octets
 };
 
 #endif // CONSTANTS_HPP

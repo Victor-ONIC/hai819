@@ -11,7 +11,7 @@ ChunkBuilder::ChunkBuilder() {
   addShader("grassCompute");
   addShader("waterCompute");
   addShader("mapCompute3D");
-  addShader("mapComputeVoronoi");
+  //addShader("mapComputeVoronoi");
   addShader("genVertices");
 }
 

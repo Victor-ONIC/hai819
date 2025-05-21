@@ -208,7 +208,7 @@ BiomeInfluence9 find_nine_closest(vec2 world_pos) {
 void main() {
     BiomesData biomes;
     PerlinResult noise;
-    int nb_octaves = 3;
+    int nb_octaves = 2;
     float persistence = 0.5;
     float zoom = 0.01;
     ivec3 id = ivec3(gl_GlobalInvocationID.xyz);
@@ -218,7 +218,7 @@ void main() {
     int gz = int(global_id.z) + chunk_z;
     vec2 pos = vec2(gx, gz);
     noise = perlin_octaves(pos, nb_octaves, persistence, zoom);
-    pos += noise.gradient * 30.0;
+    pos += noise.gradient * 20.0;
     vec2 world_pos = pos + vec2(0.5);
     float min_dist = 1e9;
     uint closest_id = 0u;
@@ -240,9 +240,11 @@ void main() {
     BiomeInfluence9 bi = find_nine_closest(world_pos);
     float sum9 = 0.0;
     float total_weight = 0.0;
+    float p = 6;
 
     for (int i = 0; i < NBCELL; ++i) {
-        float w = 1.0 / (bi.dist[i] + EPSI);
+        //float w = 1.0 / (bi.dist[i] + EPSI);
+        float w = 1.0 / pow(bi.dist[i] + EPSI, p); // avec p ∈ [1.5, 3.0] typiquement
         total_weight += w;
 
         float biome_data = float(bi.id[i] % 2); // ou toute autre fonction

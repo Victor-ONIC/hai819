@@ -233,8 +233,10 @@ static inline void init(Camera cam) {
   shader->set_uniform("map_width", C::CHUNK_WIDTH);
   shader->set_uniform("map_height", C::CHUNK_HEIGHT);
   shader->set_uniform("map_depth", C::CHUNK_DEPTH);
-  texture_manager.loadTexture("grass_tex", "../res/textures/grass.jpg");
-  texture_manager.loadTexture("water_tex", "../res/textures/water.jpg");
+  //texture_manager.loadTexture("grass_tex", "../res/textures/grass.jpg");
+  //texture_manager.loadTexture("water_tex", "../res/textures/water.jpg");
+  texture_manager.loadTexture("grass_tex", "../res/textures/bedrock.jpg");
+  texture_manager.loadTexture("water_tex", "../res/textures/lava.jpg");
   texture_manager.loadTexture("cobble_tex", "../res/textures/cobble.jpg");
 
   // Cube Repère Shader
@@ -279,14 +281,22 @@ static inline void draw(Camera cam) {
 
 static inline void camera_settings(Camera &cam, float current_time) {
   static GLfloat angle = 6.0;
-  GLfloat dist = 60.0;
+  GLfloat dist = 0.0;
   GLfloat vit = 0.1;
+  //current_time = 0.0;
 
+  /*
   cam.update(
       glm::vec3(-10.5 * dist * cos(vit * current_time), 170.0,
                 10.2 * dist * sin(vit * current_time)),
       glm::vec3((GLfloat)C::CHUNK_WIDTH * 1, 0.0, (GLfloat)C::CHUNK_DEPTH * 1),
       glm::vec3(0.0, 1.0, 0.0));
+      */
+  cam.update(
+            glm::vec3(10.0 * dist * cos(vit * current_time), 300.0, 10.0 * dist * sin(vit * current_time)),
+            glm::vec3(10.0 * dist * cos(vit * current_time), 0.0, 10 * dist * sin(vit * current_time)),
+            //glm::vec3(0.0, 0.0, 0.0),
+            glm::vec3(0.0, 1.0, 1.0));
 }
 
 static inline void tick_chunkbuilder(Camera cam) {
