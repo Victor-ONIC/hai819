@@ -98,7 +98,7 @@ float perlin_octaves(vec3 pos, int nb_octaves, float persistence, float zoom) {
 }
 
 uint compute_3D(vec3 ind3D, uint type, float noise){
-    if((noise > 0.25) && (type == 1 || type == 3)) return 0;
+    if((noise > 0.25) && (type == 1 || type == 3 || type == 4)) return 0;
     return type;
 }
 

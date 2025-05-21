@@ -42,7 +42,8 @@ constexpr int CHUNK_HEIGHT = 256;
 //constexpr int CHUNK_HEIGHT = 512;
 //constexpr int CHUNK_DEPTH = 512;
 
-constexpr float CELL_SIZE = 512.0;
+constexpr float CELL_SIZE = 1024.0;
+//constexpr float CELL_SIZE = 512.0;
 
 constexpr uint64_t BLOCKS_PER_CHUNK = CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH;
 

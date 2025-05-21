@@ -2,7 +2,7 @@
 #define PARAM_HPP
 
 namespace Param {
-    int minit = -12;
+    int minit = -7;
     int maxit = -minit + 1;
 } // namespace Param
 
