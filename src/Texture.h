@@ -5,7 +5,6 @@
 #include <iostream>
 #include <vector>
 
-#define GLEW_STATIC
 #include "GL/glew.h"
 
 class Texture
