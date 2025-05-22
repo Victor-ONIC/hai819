@@ -256,7 +256,7 @@ void main()
     sable.base_block = 6;
 
     BiomesParam all_biomes[3];
-    all_biomes[0] = hill;
+    all_biomes[0] = lava;
     all_biomes[1] = lava;
     all_biomes[2] = sable;
     BiomeInfluence9 bi = find_nine_closest(world_pos);
