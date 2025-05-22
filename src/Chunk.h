@@ -24,6 +24,7 @@ public:
   glm::ivec2 get_xz();
   GLuint get_blocktype_buffer();
   GLuint get_faces_buffer();
+  GLuint get_faces_buffer_permanent();
   GLuint get_counter_faces();
   void print_counter_faces();
   void print_faces();

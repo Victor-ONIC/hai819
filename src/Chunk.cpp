@@ -43,6 +43,7 @@ Chunk::Chunk(int x, int z) {
 glm::ivec2 Chunk::get_xz(){ return m_xz; }
 GLuint Chunk::get_blocktype_buffer() { return m_buffer_blocktype; }
 GLuint Chunk::get_faces_buffer() { return m_tmp_buffer_faces; }
+GLuint Chunk::get_faces_buffer_permanent() { return m_buffer_faces; }
 GLuint Chunk::get_buffer_counter_faces() { return m_bufferVisibleFaceCounter; }
 GLuint Chunk::get_vao_faces() { return m_vao_faces; }
 

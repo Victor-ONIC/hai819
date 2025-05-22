@@ -94,68 +94,101 @@ Collision Camera::collide() {
 
     int x = floor(m_pos[0] / C::CHUNK_WIDTH);
     int z = floor(m_pos[2] / C::CHUNK_DEPTH);
+
     Chunk* c = w.tryGetChunk(x, z);
-    if (!c) return res;
-
-    GLuint ssbo = c->get_blocktype_buffer();
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-    void* ptr = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-    if (ptr) {
-        GLuint* blocks = static_cast<GLuint*>(ptr);
-
-        // coords caméra dans le chunk
-        int chunk_x = static_cast<int>(m_pos[0]) % C::CHUNK_DEPTH;
-        int chunk_y = static_cast<int>(m_pos[1]);
-        int chunk_z = static_cast<int>(m_pos[2]) % C::CHUNK_WIDTH;
-
-        // y_pos
-        GLuint u = blocks[block_index(chunk_x, chunk_y + 1, chunk_z)];
-        if (u != 0) {
-            res.y_pos = true;
-            // std::cout << "Collision up" << std::endl;
-        }
-
-        // y_neg
-        GLuint d = blocks[block_index(chunk_x, chunk_y - 2, chunk_z)];
-        if (d != 0) {
-            res.y_neg = true;
-            // std::cout << "Collision down" << std::endl;
-        }
-
-        // x_pos
-        GLuint xp1 = blocks[block_index(chunk_x + 1, chunk_y - 1, chunk_z)];
-        GLuint xp2 = blocks[block_index(chunk_x + 1, chunk_y, chunk_z)];
-        if (xp1 != 0 || xp2 != 0) {
-            res.x_pos = true;
-            // std::cout << "Collision x+" << std::endl;
-        }
-
-        // x_neg
-        GLuint xn1 = blocks[block_index(chunk_x - 1, chunk_y - 1, chunk_z)];
-        GLuint xn2 = blocks[block_index(chunk_x - 1, chunk_y, chunk_z)];
-        if (xp1 != 0 || xp2 != 0) {
-            res.x_neg = true;
-            // std::cout << "Collision x-" << std::endl;
-        }
-
-        // z_pos
-        GLuint zp1 = blocks[block_index(chunk_x, chunk_y - 1, chunk_z + 1)];
-        GLuint zp2 = blocks[block_index(chunk_x, chunk_y, chunk_z + 1)];
-        if (zp1 != 0 || zp2 != 0) {
-            res.z_pos = true;
-            // std::cout << "Collision z+" << std::endl;
-        }
-
-        // z_neg
-        GLuint zn1 = blocks[block_index(chunk_x, chunk_y - 1, chunk_z - 1)];
-        GLuint zn2 = blocks[block_index(chunk_x, chunk_y, chunk_z - 1)];
-        if (zn1 != 0 || zn2 != 0) {
-            res.z_neg = true;
-            // std::cout << "Collision z-" << std::endl;
-        }
+    if (!c) {
+        std::cerr << "chunk not found" << std::endl;
+        return res;
     }
 
-    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    GLuint id = c->get_faces_buffer_permanent();
+    if (id == 0) {
+        std::cout << "no buffer" << std::endl;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, id);
+
+    GLint size = 0;
+    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    std::cout << "Buffer size: " << size << std::endl;
+
+    void* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0, size, GL_READ_ONLY);
+
+    if (ptr) {
+        face* faces = static_cast<face*>(ptr);
+
+        std::cout << "face " << faces[0].blocktype << std::endl;
+    } else {
+        std::cout << "no pointer" << std::endl;
+    }
+
+    // GLuint ssbo = c->get_blocktype_buffer();
+    // if (ssbo == 0) {
+    //     std::cout << "ssbo is garbage" << std::endl;
+    // }
+
+    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+    // void* ptr = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+    // if (ptr) {
+    //     GLuint* blocks = static_cast<GLuint*>(ptr);
+
+    //     // coords caméra dans le chunk
+    //     int chunk_x = static_cast<int>(m_pos[0]) % C::CHUNK_DEPTH;
+    //     int chunk_y = static_cast<int>(m_pos[1]);
+    //     int chunk_z = static_cast<int>(m_pos[2]) % C::CHUNK_WIDTH;
+
+    //     std::cout << blocks[block_index(chunk_x, chunk_y - 2, chunk_z)] << std::endl;
+
+    //     // y_pos
+    //     GLuint u = blocks[block_index(chunk_x, chunk_y + 1, chunk_z)];
+    //     if (u != 0) {
+    //         res.y_pos = true;
+    //         std::cout << "Collision up" << std::endl;
+    //     }
+
+    //     // y_neg
+    //     GLuint d = blocks[block_index(chunk_x, chunk_y - 2, chunk_z)];
+    //     if (d != 0) {
+    //         res.y_neg = true;
+    //         std::cout << "Collision down" << std::endl;
+    //     }
+
+    //     // x_pos
+    //     GLuint xp1 = blocks[block_index(chunk_x + 1, chunk_y - 1, chunk_z)];
+    //     GLuint xp2 = blocks[block_index(chunk_x + 1, chunk_y, chunk_z)];
+    //     if (xp1 != 0 || xp2 != 0) {
+    //         res.x_pos = true;
+    //         // std::cout << "Collision x+" << std::endl;
+    //     }
+
+    //     // x_neg
+    //     GLuint xn1 = blocks[block_index(chunk_x - 1, chunk_y - 1, chunk_z)];
+    //     GLuint xn2 = blocks[block_index(chunk_x - 1, chunk_y, chunk_z)];
+    //     if (xp1 != 0 || xp2 != 0) {
+    //         res.x_neg = true;
+    //         // std::cout << "Collision x-" << std::endl;
+    //     }
+
+    //     // z_pos
+    //     GLuint zp1 = blocks[block_index(chunk_x, chunk_y - 1, chunk_z + 1)];
+    //     GLuint zp2 = blocks[block_index(chunk_x, chunk_y, chunk_z + 1)];
+    //     if (zp1 != 0 || zp2 != 0) {
+    //         res.z_pos = true;
+    //         // std::cout << "Collision z+" << std::endl;
+    //     }
+
+    //     // z_neg
+    //     GLuint zn1 = blocks[block_index(chunk_x, chunk_y - 1, chunk_z - 1)];
+    //     GLuint zn2 = blocks[block_index(chunk_x, chunk_y, chunk_z - 1)];
+    //     if (zn1 != 0 || zn2 != 0) {
+    //         res.z_neg = true;
+    //         // std::cout << "Collision z-" << std::endl;
+    //     }
+    // } else {
+    //     std::cout << "no pointer" << std::endl;
+    // }
+
+    // glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
     return res;
 }
@@ -164,23 +197,23 @@ void Camera::update(float dt) {
     this->c = this->collide();
 
     // Gravité
-    if (!this->c.y_neg) {
-        m_velocity -= glm::vec3(0.0, 1.0, 0.0) * m_speed * dt;
-    }
+    // if (!this->c.y_neg) {
+    //     m_velocity -= glm::vec3(0.0, 1.0, 0.0) * m_speed * dt;
+    // }
 
-    if (this->c.x_pos) {
-        m_velocity[0] = m_velocity[0] > 0 ? 0 : m_velocity[0];
-    }
-    if (this->c.x_neg) {
-        m_velocity[0] = m_velocity[0] <= 0 ? 0 : m_velocity[0];
-    }
+    // if (this->c.x_pos) {
+    //     m_velocity[0] = m_velocity[0] > 0 ? 0 : m_velocity[0];
+    // }
+    // if (this->c.x_neg) {
+    //     m_velocity[0] = m_velocity[0] <= 0 ? 0 : m_velocity[0];
+    // }
 
-    if (this->c.z_pos) {
-        m_velocity[2] = m_velocity[2] > 0 ? 0 : m_velocity[2];
-    }
-    if (this->c.z_neg) {
-        m_velocity[2] = m_velocity[2] <= 0 ? 0 : m_velocity[2];
-    }
+    // if (this->c.z_pos) {
+    //     m_velocity[2] = m_velocity[2] > 0 ? 0 : m_velocity[2];
+    // }
+    // if (this->c.z_neg) {
+    //     m_velocity[2] = m_velocity[2] <= 0 ? 0 : m_velocity[2];
+    // }
 
     m_pos += m_velocity * dt;
     m_velocity *= pow(0.6f, dt * 60.0f);
@@ -227,9 +260,8 @@ glm::vec3 Camera::get_pos(){
   return m_pos;
 }
 
-glm::vec3& Camera::get_pos_modifiable()
-{
-    return this->m_pos;
+glm::vec3 Camera::get_look_at(){
+  return m_look_at;
 }
 
 glm::mat4 Camera::get_view(){

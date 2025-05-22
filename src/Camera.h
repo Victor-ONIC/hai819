@@ -40,7 +40,7 @@ public:
   void look_at_update(glm::vec3 look_at);
   void head_update(glm::vec3 head);
   glm::vec3 get_pos();
-  glm::vec3& get_pos_modifiable();
+  glm::vec3 get_look_at();
   glm::mat4 get_view();
   glm::mat4 get_proj();
   float yaw = -90.0f;

@@ -27,11 +27,11 @@ constexpr int CHUNK_DEPTH = 64;
 
 
 //constexpr int CHUNK_WIDTH = 128;
-//constexpr int CHUNK_HEIGHT = 128;
+constexpr int CHUNK_HEIGHT = 128;
 //constexpr int CHUNK_DEPTH = 128;
 
 //constexpr int CHUNK_WIDTH = 256;
-constexpr int CHUNK_HEIGHT = 256;
+// constexpr int CHUNK_HEIGHT = 256;
 //constexpr int CHUNK_DEPTH = 256;
 
 //constexpr int CHUNK_WIDTH = 320;
