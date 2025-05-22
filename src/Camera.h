@@ -5,6 +5,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include "Constants.h"
+
+namespace C = Constants;
 
 #define GLEW_STATIC
 #include "GL/glew.h"

@@ -10,8 +10,12 @@
 #include <variant>
 
 namespace Constants {
-constexpr int WINDOW_WIDTH = 1920;
-constexpr int WINDOW_HEIGHT = 1080;
+
+constexpr int WINDOW_WIDTH = 2560;
+constexpr int WINDOW_HEIGHT = 1440;
+
+//constexpr int WINDOW_WIDTH = 1920;
+//constexpr int WINDOW_HEIGHT = 1080;
 
 //constexpr int CHUNK_WIDTH = 16;
 //constexpr int CHUNK_HEIGHT = 16;
@@ -42,7 +46,7 @@ constexpr int CHUNK_HEIGHT = 256;
 //constexpr int CHUNK_HEIGHT = 512;
 //constexpr int CHUNK_DEPTH = 512;
 
-constexpr float CELL_SIZE = 1024.0;
+constexpr float CELL_SIZE = 256.0;
 //constexpr float CELL_SIZE = 512.0;
 
 constexpr uint64_t BLOCKS_PER_CHUNK = CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH;

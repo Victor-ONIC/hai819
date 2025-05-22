@@ -143,6 +143,32 @@ uint compute_2D(float noise, float ground_height, float ind3D_y, uint biome_type
     return 0;
 }
 
+/*
+PerlinResult perlin_octaves(vec2 pos, BiomesParam biome) {
+    int nb_octaves = biome.nb_octaves;
+    float persistence = biome.persistence;
+    float zoom = biome.zoom;
+    float coef_pow = biome.coef_pow;
+    int bool_pow = biome.bool_pow;
+    float total = 0.0;
+    float amplitude = 1.0;
+    float frequency = 1.0;
+    float maxValue = 0.0; // pour normaliser
+    PerlinResult result, tmp;
+    result.value = 0.0;
+    result.gradient = vec2(0.0);
+    for (int i = 0; i < nb_octaves; ++i) {
+        tmp = perlin_with_gradient(zoom * pos * frequency, coef_pow, bool_pow);
+        result.value += tmp.value * amplitude;
+        result.gradient += tmp.gradient * amplitude;
+        maxValue += amplitude;
+        amplitude *= persistence; // exemple : 0.5
+        frequency *= 2.0;
+    }
+    return result;
+}
+*/
+
 
 float perlin_octaves(vec2 pos, BiomesParam biome) {
     int nb_octaves = biome.nb_octaves;
@@ -214,6 +240,7 @@ BiomeInfluence9 find_nine_closest(vec2 world_pos) {
 
 void main()
 {
+    //noise = perlin_octaves(pos, nb_octaves, persistence, zoom);
     BiomesParam lava;
     BiomesParam hill;
     BiomesParam sable;
@@ -256,8 +283,8 @@ void main()
     sable.base_block = 6;
 
     BiomesParam all_biomes[3];
-    all_biomes[0] = lava;
-    all_biomes[1] = lava;
+    all_biomes[0] = hill;
+    all_biomes[1] = hill;
     all_biomes[2] = sable;
     BiomeInfluence9 bi = find_nine_closest(world_pos);
     float sum9 = 0.0;

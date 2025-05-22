@@ -366,7 +366,7 @@ static inline void camera_settings(Camera &cam, float current_time) {
 
 static inline void tick_chunkbuilder(Camera cam) {
   int i = 0;
-  int max_chunks_per_tick = 1;
+  int max_chunks_per_tick = 2;
   ChunkBuilder chunkbuilder = ChunkBuilder();
   World &world = World::getInstance();
   for (auto &[key, chunk] : world.m_chunks) {
@@ -411,7 +411,7 @@ int main() {
   glViewport(0, 0, C::WINDOW_WIDTH, C::WINDOW_HEIGHT);
 
   Camera cam =
-  Camera(glm::vec3(0, 320, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  Camera(glm::vec3(0, 240, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
   //camera_settings(cam, 0.0);
   init(cam);
   auto lastTime = std::chrono::high_resolution_clock::now();
