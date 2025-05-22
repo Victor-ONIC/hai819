@@ -27,13 +27,14 @@ public:
   void look_at_update(glm::vec3 look_at);
   void head_update(glm::vec3 head);
   glm::vec3 get_pos();
+  glm::vec3 get_look_at();
   glm::mat4 get_view();
   glm::mat4 get_proj();
   float yaw = -90.0f;
   float pitch = -25.0f;
   float lastX = 960.0f, lastY = 540.0f;
   bool firstMouse = true;
-  float speed = 50.0f;
+  float speed = 10.0f;
   glm::vec3 front, right, up;
   ~Camera();
 

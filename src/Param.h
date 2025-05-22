@@ -2,8 +2,9 @@
 #define PARAM_HPP
 
 namespace Param {
-    int minit = -7;
-    int maxit = -minit + 1;
+    int render_distance = 17;
+    int margin_distance_erase_chunks = 2;
+    float fov = 60.0;
 } // namespace Param
 
 #endif

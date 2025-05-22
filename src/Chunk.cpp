@@ -170,22 +170,44 @@ void Chunk::genLowMemBuffer(){
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
   // Libère le buffer temporaire
   glDeleteBuffers(1, &m_tmp_buffer_faces);
+  m_tmp_buffer_faces = 0;
   glDeleteBuffers(1, &(m_buffer_blocktype));
+  m_buffer_blocktype = 0;
 }
 
 Chunk::~Chunk() {
-  if (m_buffer_blocktype != 0)
+  if (m_buffer_blocktype != 0) {
     glDeleteBuffers(1, &m_buffer_blocktype);
-  if (m_tmp_buffer_faces != 0)
+    m_buffer_blocktype = 0;
+  }
+
+  if (m_tmp_buffer_faces != 0) {
     glDeleteBuffers(1, &m_tmp_buffer_faces);
-  if (m_buffer_faces != 0)
+    m_tmp_buffer_faces = 0;
+  }
+
+  if (m_buffer_faces != 0) {
     glDeleteBuffers(1, &m_buffer_faces);
-  if (m_vao_faces != 0)
+    m_buffer_faces = 0;
+  }
+
+  if (m_vao_faces != 0) {
     glDeleteVertexArrays(1, &m_vao_faces);
-  if (m_visibleFaceCounter != 0)
+    m_vao_faces = 0;
+  }
+
+  if (m_visibleFaceCounter != 0) {
     glDeleteBuffers(1, &m_visibleFaceCounter);
-  if (m_bufferVisibleFaceCounter != 0)
+    m_visibleFaceCounter = 0;
+  }
+
+  if (m_bufferVisibleFaceCounter != 0) {
     glDeleteBuffers(1, &m_bufferVisibleFaceCounter);
-  if (m_fence)
+    m_bufferVisibleFaceCounter = 0;
+  }
+
+  if (m_fence) {
     glDeleteSync(m_fence);
+    m_fence = nullptr;
+  }
 }

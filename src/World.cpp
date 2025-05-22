@@ -34,25 +34,30 @@ void World::print_nb_chunks(){
   std::cout << "Nombre de chunks chargés : " << nb_chunks << std::endl;
 }
 
-void World::delete_chunks(Camera cam, int unload_distance) {
-  int i = 0;
-  int max_chunks_per_tick = 3;
-  float frange = C::CHUNK_DEPTH * (float) unload_distance;
-  glm::vec3 cam_pos = cam.get_pos();
-  for (auto it = m_chunks.begin(); it != m_chunks.end();) {
-    const auto &[key, chunk_ptr] = *it;
-    glm::ivec2 chunk_pos = chunk_ptr->get_xz(); // ou key si c'est la même chose
-    glm::vec3 chunk_world_pos = glm::vec3(chunk_pos.x, C::CHUNK_HEIGHT/2, chunk_pos.y);
+void World::delete_chunks(Camera cam, int chunk_radius) {
+  int deleted_count = 0;
+  const int max_chunks_per_tick = 1;
 
-    float dist = glm::distance(chunk_world_pos, cam_pos);
-    if (dist > frange) {
-      if ((++i) > max_chunks_per_tick) break;
-    //std::cout << "chunk world pos :       " << chunk_world_pos[0] << ",   " << chunk_world_pos[1] << ",    " << chunk_world_pos[2] << std::endl;
-    //std::cout << "cam pos :       " << cam_pos[0] << ", " << cam_pos[1] << ", " << cam_pos[2] << std::endl;
-    //std::cout << "dist chunk :       " << dist << std::endl;
-      it = m_chunks.erase(it); // efface et avance l'itérateur automatiquement
+  glm::vec3 cam_pos = cam.get_pos();
+  int cam_cx = (int)std::floor(cam_pos.x / (float)C::CHUNK_WIDTH);
+  int cam_cz = (int)std::floor(cam_pos.z / (float)C::CHUNK_DEPTH);
+
+  int radius_squared = chunk_radius * chunk_radius;
+
+  for (auto it = m_chunks.begin(); it != m_chunks.end(); ) {
+    const auto &[key, chunk_ptr] = *it;
+    glm::ivec2 chunk_pos = chunk_ptr->get_xz(); // ou directement `key`
+
+    int dx = chunk_pos.x / C::CHUNK_WIDTH - cam_cx;
+    int dz = chunk_pos.y / C::CHUNK_DEPTH - cam_cz;
+
+    if ((dx * dx + dz * dz) > radius_squared) {
+      it = m_chunks.erase(it); // avance automatiquement
+      glFinish();
+      ++deleted_count;
+      if (deleted_count >= max_chunks_per_tick) break;
     } else {
-      ++it; // avance normalement
+      ++it;
     }
   }
 }

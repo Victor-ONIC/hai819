@@ -120,30 +120,70 @@ static inline void update_chunk_state(Chunk *chunk, Camera cam) {
     }
   }
 }
+bool is_chunk_visible(Camera &cam, int chunk_x, int chunk_z) {
+    float marge_fov = 30.0f;
+    float min_dist = 1.5f * C::CHUNK_WIDTH; // chunks trop proches toujours visibles
+
+    glm::vec3 cam_pos = cam.get_pos();
+    glm::vec3 cam_dir = glm::normalize(cam.get_look_at() - cam_pos);
+
+    float chunk_center_x = chunk_x * C::CHUNK_WIDTH + C::CHUNK_WIDTH * 0.5f;
+    float chunk_center_z = chunk_z * C::CHUNK_DEPTH + C::CHUNK_DEPTH * 0.5f;
+
+    float dist2 = (chunk_center_x - cam_pos.x) * (chunk_center_x - cam_pos.x) +
+                  (chunk_center_z - cam_pos.z) * (chunk_center_z - cam_pos.z);
+
+    if (dist2 < min_dist * min_dist)
+        return true;
+
+    glm::vec2 to_chunk = glm::normalize(glm::vec2(
+        chunk_center_x - cam_pos.x,
+        chunk_center_z - cam_pos.z
+    ));
+
+    glm::vec2 cam_forward = glm::normalize(glm::vec2(cam_dir.x, cam_dir.z));
+
+    float dot = glm::dot(to_chunk, cam_forward);
+
+    float angle_rad = glm::radians(P::fov * 0.5f + marge_fov);
+    float threshold = cos(angle_rad);
+
+    return dot > threshold;
+}
 
 static inline void draw_chunks_below(Camera cam) {
   World &world = World::getInstance();
   ChunkBuilder chunkbuilder = ChunkBuilder();
   Chunk *chunk;
-  int x = floor(cam.get_pos()[0] / C::CHUNK_WIDTH);
-  int z = floor(cam.get_pos()[2] / C::CHUNK_DEPTH);
-  for (int i = P::minit; i < P::maxit; ++i) {
-    for (int j = P::minit; j < P::maxit; ++j) {
-      chunk = world.tryGetChunk(x + i, z + j);
+  int cx = floor(cam.get_pos()[0] / C::CHUNK_WIDTH);
+  int cz = floor(cam.get_pos()[2] / C::CHUNK_DEPTH);
+  int radius = P::render_distance;
+  int margin = P::margin_distance_erase_chunks;
+  for (int dz = -radius; dz <= radius; ++dz) {
+    for (int dx = -radius; dx <= radius; ++dx) {
+      // distance au chunk central
+      float dist = sqrt(dx * dx + dz * dz);
+      if (dist > radius)
+        continue; // on ignore les chunks hors rayon
+
+      int chunk_x = cx + dx;
+      int chunk_z = cz + dz;
+
+      Chunk *chunk = world.tryGetChunk(chunk_x, chunk_z);
       if (chunk)
         update_chunk_state(chunk, cam);
-      else {
-        world.initChunk(x + i, z + j);
+      else{
+        world.initChunk(chunk_x, chunk_z);
+        continue;
       }
-      if (chunk && chunk->renderable) {
+
+      if (chunk && chunk->renderable && is_chunk_visible(cam, chunk_x, chunk_z))
         draw_chunk_faces(chunk, cam);
-      }
     }
   }
-  //world.delete_chunks(cam, 280.0);
+  world.delete_chunks(cam, radius + margin);
   //world.print_nb_chunks();
 }
-
 
 static inline int generate_seed() {
   static std::random_device rd;
@@ -269,13 +309,14 @@ static inline void init(Camera cam) {
 
   World &world = World::getInstance();
   ChunkBuilder chunkbuilder = ChunkBuilder();
-
-  int x = floor(cam.get_pos()[0] / C::CHUNK_WIDTH);
-  int z = floor(cam.get_pos()[2] / C::CHUNK_DEPTH);
-  for (int i = P::minit; i < P::maxit; ++i) {
-    for (int j = P::minit; j < P::maxit; ++j) {
-      world.initChunk(x + i, z + j);
-      chunkbuilder.build(world.tryGetChunk(x + i, z + j));
+  int radius = P::render_distance;
+  for (int dz = -radius; dz <= radius; ++dz) {
+    for (int dx = -radius; dx <= radius; ++dx) {
+      // distance au chunk central
+      float dist = sqrt(dx * dx + dz * dz);
+      if (dist > radius) continue;
+      world.initChunk(dx, dz);
+      chunkbuilder.build(world.tryGetChunk(dx, dz));
     }
   }
 
@@ -325,7 +366,7 @@ static inline void camera_settings(Camera &cam, float current_time) {
 
 static inline void tick_chunkbuilder(Camera cam) {
   int i = 0;
-  int max_chunks_per_tick = 3;
+  int max_chunks_per_tick = 1;
   ChunkBuilder chunkbuilder = ChunkBuilder();
   World &world = World::getInstance();
   for (auto &[key, chunk] : world.m_chunks) {
