@@ -35,8 +35,8 @@ void main(void) {
     float dist = abs(viewSpacePos.z);
     //vec3 fogColor = vec3(0.5, 0.6, 0.8);
     vec3 fogColor = vec3(0.3, 0.4, 0.8);
-    float fogNear = 800.0;
-    float fogFar  = 900.0;
+    float fogNear = 100.0;
+    float fogFar  = 300.0;
     float fogFactor = clamp((fogFar - dist) / (fogFar - fogNear), 0.0, 1.0);
     //spec
     vec4 Lpv = view * Lp;
