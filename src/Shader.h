@@ -7,7 +7,6 @@
 #include <string>
 #include <unordered_map>
 
-#define GLEW_STATIC
 #include "Constants.h"
 #include "GL/glew.h"
 #include "glm/glm.hpp"
